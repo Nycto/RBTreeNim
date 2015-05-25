@@ -15,3 +15,6 @@ suite "A Red/Black Tree should":
         tree.insert(1)
         require( tree == "RedBlackTree(B 1)" )
 
+        tree.insert(2)
+        require( tree == "RedBlackTree(B 1 () (R 2))" )
+

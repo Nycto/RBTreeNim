@@ -45,9 +45,28 @@ proc `$`* [T]( self: RedBlackTree[T] ): string =
     ## Returns a tree as a string
     return "RedBlackTree" & `$`[T](self.root)
 
+
 proc newNode[T]( value: T, parent: Node[T] = nil ): Node[T] =
     return Node[T](
         left: nil, right: nil, parent: parent, color: red, value: value )
+
+proc insert[T](
+    self: var Node[T], compare: proc(a, b: T): int, value: T
+): Node[T] =
+    ## Does a basic binary search tree insert, returning the new node
+    if compare(value, self.value) <= 0:
+        if self.left == nil:
+            result = newNode( value, self )
+            self.left = result
+        else:
+            result = insert(self.left, compare, value)
+    else:
+        if self.right == nil:
+            result = newNode( value, self )
+            self.right = result
+        else:
+            result = insert(self.right, compare, value)
+
 
 proc insertCase1[T]( node: var Node[T] ) =
     ## Case 1: The current node N is at the root of the tree
@@ -59,4 +78,8 @@ proc insert*[T]( self: var RedBlackTree[T], value: T ) =
     if self.root == nil:
         self.root = newNode(value)
         insertCase1(self.root)
+    else:
+        var inserted = insert[T](self.root, cmp, value)
+        insertCase1(inserted)
+
 
