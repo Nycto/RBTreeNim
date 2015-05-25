@@ -9,12 +9,13 @@ suite "A Red/Black Tree should":
         let tree = newRBTree[int]()
         require( tree == "RedBlackTree()" )
 
-    test "Insert nodes":
+    test "Insert Case 1":
         var tree = newRBTree[int]()
-
         tree.insert(1)
         require( tree == "RedBlackTree(B 1)" )
 
-        tree.insert(2)
-        require( tree == "RedBlackTree(B 1 () (R 2))" )
+    test "Insert Case 2":
+        var tree = newRBTree[int]()
+        tree.insert(2, 1, 3)
+        require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
 

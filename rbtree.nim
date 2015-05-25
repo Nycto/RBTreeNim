@@ -68,18 +68,27 @@ proc insert[T](
             result = insert(self.right, compare, value)
 
 
+proc insertCase2[T]( node: var Node[T] ) =
+    ## Case 2: The current node's parent P is black, so both children of every
+    ## red node are black
+    if node.parent.color == black:
+        discard # Tree is still valid
+
 proc insertCase1[T]( node: var Node[T] ) =
     ## Case 1: The current node N is at the root of the tree
     if node.parent == nil:
         node.color = black
-
-proc insert*[T]( self: var RedBlackTree[T], value: T ) =
-    ## Adds a value to this tree
-    if self.root == nil:
-        self.root = newNode(value)
-        insertCase1(self.root)
     else:
-        var inserted = insert[T](self.root, cmp, value)
-        insertCase1(inserted)
+        insertCase2(node)
+
+proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
+    ## Adds a value to this tree
+    for value in values:
+        if self.root == nil:
+            self.root = newNode(value)
+            insertCase1(self.root)
+        else:
+            var inserted = insert[T](self.root, cmp, value)
+            insertCase1(inserted)
 
 
