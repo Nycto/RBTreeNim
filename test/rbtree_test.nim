@@ -44,3 +44,13 @@ suite "A Red/Black Tree should":
         tree.insert(3, 2, 1)
         require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
 
+    test "Insert 10 nodes":
+        var tree = newRBTree[int]()
+        tree.insert(8,1,2,5,3,10,6,4,7,9)
+        require( tree == "RedBlackTree" &
+            "(B 5 " &
+                "(R 2 (B 1) (B 3 () (R 4))) " &
+                "(R 8 (B 6 () (R 7)) (B 10 (R 9) ())))"
+        )
+
+
