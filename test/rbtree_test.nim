@@ -19,3 +19,28 @@ suite "A Red/Black Tree should":
         tree.insert(2, 1, 3)
         require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
 
+    test "Insert Case 3":
+        var tree = newRBTree[int]()
+        tree.insert(2, 3, 1, 0)
+        require( tree == "RedBlackTree(B 2 (B 1 (R 0) ()) (B 3))" )
+
+    test "Insert Case 4 (rotate left)":
+        var tree = newRBTree[int]()
+        tree.insert(3, 1, 2)
+        require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
+
+    test "Insert Case 4 (rotate right)":
+        var tree = newRBTree[int]()
+        tree.insert(1, 3, 2)
+        require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
+
+    test "Insert Case 4 (no rotation), case 5 (rotate left)":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 3)
+        require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
+
+    test "Insert Case 4 (no rotate), case 5 (rotate right)":
+        var tree = newRBTree[int]()
+        tree.insert(3, 2, 1)
+        require( tree == "RedBlackTree(B 2 (R 1) (R 3))" )
+
