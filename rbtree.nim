@@ -21,13 +21,15 @@ type
 
     RedBlackTree*[T] = object ## A Red/Black tree
 
+        compare: proc (a, b: T): int
+
         # The root of the tree
         root: Node[T]
 
 
-proc newRBTree*[T](): RedBlackTree[T] =
+proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T] =
   # Creates a new Red/Black tree
-  return RedBlackTree[T]( root: nil )
+  return RedBlackTree[T]( root: nil, compare: compare )
 
 proc `$` [T]( self: Node[T] ): string =
     ## Converts a node to a string
@@ -212,7 +214,7 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
             self.root = newNode(value)
             insertCase1(self, self.root)
         else:
-            var inserted = insert[T](self.root, cmp, value)
+            var inserted = insert[T](self.root, self.compare, value)
             insertCase1(self, inserted)
 
 

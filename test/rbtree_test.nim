@@ -65,4 +65,11 @@ suite "A Red/Black Tree should":
         let asSeq = toSeq(reversed(tree))
         require(asSeq == @[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1])
 
+    test "Custom sorting":
+        var tree = newRBTree[int]() do (a, b: int) -> int:
+            return (a mod 5) - (b mod 5)
+        tree.insert(4,10,7,16,13)
+        let asSeq = toSeq(items(tree))
+        require(asSeq == @[ 10, 16, 7, 13, 4 ])
+
 
