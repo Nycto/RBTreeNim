@@ -140,6 +140,9 @@ proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         grandparent.right = node
 
+proc isRightChild[T]( self: Node[T] ): bool =
+    ## Whether this node is the right child of its parent
+    self.parent != nil and self.parent.right == self
 
 
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
@@ -209,4 +212,24 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
             var inserted = insert[T](self.root, cmp, value)
             insertCase1(self, inserted)
 
+
+proc leftmost[T]( node: var Node[T] ): Node[T] =
+    ## Walks every left-ward child down to the bottom
+    result = node
+    while result != nil and result.left != nil:
+        result = result.left
+
+iterator items*[T]( tree: var RedBlackTree[T] ): T =
+    ## Iterates over each value in a tree
+
+    var current = leftmost(tree.root)
+    while current != nil:
+        yield current.value
+
+        if current.right != nil:
+            current = leftmost(current.right)
+        else:
+            while isRightChild(current):
+                current = current.parent
+            current = current.parent;
 
