@@ -144,6 +144,9 @@ proc isRightChild[T]( self: Node[T] ): bool =
     ## Whether this node is the right child of its parent
     self.parent != nil and self.parent.right == self
 
+proc isLeftChild[T]( self: Node[T] ): bool =
+    ## Whether this node is the left child of its parent
+    self.parent != nil and self.parent.left == self
 
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
 
@@ -230,6 +233,27 @@ iterator items*[T]( tree: var RedBlackTree[T] ): T =
             current = leftmost(current.right)
         else:
             while isRightChild(current):
+                current = current.parent
+            current = current.parent;
+
+
+proc rightmost[T]( node: var Node[T] ): Node[T] =
+    ## Walks every rightward-ward child down to the bottom
+    result = node
+    while result != nil and result.right != nil:
+        result = result.right
+
+iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
+    ## Iterates over each value in a tree in reverse order
+
+    var current = rightmost(tree.root)
+    while current != nil:
+        yield current.value
+
+        if current.left != nil:
+            current = rightmost(current.left)
+        else:
+            while isLeftChild(current):
                 current = current.parent
             current = current.parent;
 
