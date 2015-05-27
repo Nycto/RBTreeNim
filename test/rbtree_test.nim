@@ -72,4 +72,13 @@ suite "A Red/Black Tree should":
         let asSeq = toSeq(items(tree))
         require(asSeq == @[ 10, 16, 7, 13, 4 ])
 
+    test "Return whether an item is included":
+        var tree = newRBTree[int]()
+        require( not tree.contains(4) )
+        tree.insert(4,10,10,7,16,13)
+        require( tree.contains(4) )
+        require( tree.contains(10) )
+        require( tree.contains(16) )
+        require( not tree.contains(20) )
+
 

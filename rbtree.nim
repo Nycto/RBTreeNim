@@ -259,3 +259,17 @@ iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
                 current = current.parent
             current = current.parent;
 
+
+proc contains*[T]( tree: var RedBlackTree[T], value: T ): bool =
+    ## Returns whether this tree contains the specific element
+    var examine = tree.root
+    while examine != nil:
+        if examine.value == value:
+            return true
+        elif tree.compare(value, examine.value) <= 0:
+            examine = examine.left
+        else:
+            examine = examine.right
+    return false
+
+
