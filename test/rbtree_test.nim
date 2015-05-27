@@ -1,4 +1,4 @@
-import unittest, rbtree, sequtils
+import unittest, rbtree, sequtils, optional_t
 
 proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
     $actual == expected
@@ -80,5 +80,17 @@ suite "A Red/Black Tree should":
         require( tree.contains(10) )
         require( tree.contains(16) )
         require( not tree.contains(20) )
+
+    test "Return the minimum value in a true":
+        var tree = newRBTree[int]()
+        require( tree.min.isNone )
+        tree.insert(10,4,7,16,13)
+        require( tree.min.get == 4 )
+
+    test "Return the maximum value in a true":
+        var tree = newRBTree[int]()
+        require( tree.max.isNone )
+        tree.insert(10,4,7,16,13)
+        require( tree.max.get == 16 )
 
 

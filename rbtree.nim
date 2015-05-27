@@ -150,6 +150,19 @@ proc isLeftChild[T]( self: Node[T] ): bool =
     ## Whether this node is the left child of its parent
     self.parent != nil and self.parent.left == self
 
+proc leftmost[T]( node: Node[T] ): Node[T] =
+    ## Walks every left-ward child down to the bottom
+    result = node
+    while result != nil and result.left != nil:
+        result = result.left
+
+proc rightmost[T]( node: Node[T] ): Node[T] =
+    ## Walks every rightward-ward child down to the bottom
+    result = node
+    while result != nil and result.right != nil:
+        result = result.right
+
+
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
 
 proc insertCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
@@ -207,6 +220,7 @@ proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
     else:
         insertCase2(tree, node)
 
+
 proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
     ## Adds a value to this tree
     for value in values:
@@ -216,13 +230,6 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
         else:
             var inserted = insert[T](self.root, self.compare, value)
             insertCase1(self, inserted)
-
-
-proc leftmost[T]( node: var Node[T] ): Node[T] =
-    ## Walks every left-ward child down to the bottom
-    result = node
-    while result != nil and result.left != nil:
-        result = result.left
 
 iterator items*[T]( tree: var RedBlackTree[T] ): T =
     ## Iterates over each value in a tree
@@ -238,13 +245,6 @@ iterator items*[T]( tree: var RedBlackTree[T] ): T =
                 current = current.parent
             current = current.parent;
 
-
-proc rightmost[T]( node: var Node[T] ): Node[T] =
-    ## Walks every rightward-ward child down to the bottom
-    result = node
-    while result != nil and result.right != nil:
-        result = result.right
-
 iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
 
@@ -259,7 +259,6 @@ iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
                 current = current.parent
             current = current.parent;
 
-
 proc contains*[T]( tree: var RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
     var examine = tree.root
@@ -272,4 +271,17 @@ proc contains*[T]( tree: var RedBlackTree[T], value: T ): bool =
             examine = examine.right
     return false
 
+proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
+    ## Returns the minimum value in a tree
+    if tree.root == nil:
+        return None[T]()
+    else:
+        return Some[T]( leftmost(tree.root).value )
+
+proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
+    ## Returns the minimum value in a tree
+    if tree.root == nil:
+        return None[T]()
+    else:
+        return Some[T]( rightmost(tree.root).value )
 
