@@ -231,7 +231,7 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
             var inserted = insert[T](self.root, self.compare, value)
             insertCase1(self, inserted)
 
-iterator items*[T]( tree: var RedBlackTree[T] ): T =
+iterator items*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree
 
     var current = leftmost(tree.root)
@@ -245,7 +245,7 @@ iterator items*[T]( tree: var RedBlackTree[T] ): T =
                 current = current.parent
             current = current.parent;
 
-iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
+iterator reversed*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
 
     var current = rightmost(tree.root)
@@ -259,7 +259,7 @@ iterator reversed*[T]( tree: var RedBlackTree[T] ): T =
                 current = current.parent
             current = current.parent;
 
-proc contains*[T]( tree: var RedBlackTree[T], value: T ): bool =
+proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
     var examine = tree.root
     while examine != nil:
