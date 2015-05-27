@@ -2,8 +2,8 @@ os:
     - linux
 language: c
 install:
-    - git clone -b devel git://github.com/Araq/Nim.git
-    - (cd Nim && sh build.sh)
+    - git clone -b devel --depth 1 git://github.com/Araq/Nim.git
+    - (cd Nim && sh bootstrap.sh)
     - export PATH=`pwd`/Nim/bin:$PATH
     - git clone https://github.com/nim-lang/nimble.git
     - (cd nimble && nim c src/nimble)
