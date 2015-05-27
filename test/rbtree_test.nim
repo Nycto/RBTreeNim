@@ -93,4 +93,18 @@ suite "A Red/Black Tree should":
         tree.insert(10,4,7,16,13)
         require( tree.max.get == 16 )
 
+    test "Deleting a value that doesn't exist is a noop":
+        var tree = newRBTree[int]()
+        tree.delete(15)
+        require( tree == "RedBlackTree()" )
+        tree.insert(10,4,7)
+        tree.delete(15)
+        require( tree == "RedBlackTree(B 7 (R 4) (R 10))" )
+
+    test "Deleting the only node from a tree":
+        var tree = newRBTree[int]()
+        tree.insert(10)
+        tree.delete(10)
+        require( tree == "RedBlackTree()" )
+
 

@@ -47,6 +47,19 @@ proc `$`* [T]( self: RedBlackTree[T] ): string =
     ## Returns a tree as a string
     return "RedBlackTree" & `$`[T](self.root)
 
+proc find[T]( tree: RedBlackTree[T], value: T ): Node[T] =
+    ## Find a value in the tree and returns the containing node. Or nil
+    var examine = tree.root
+    while examine != nil:
+        if examine.value == value:
+            return examine
+        elif tree.compare(value, examine.value) <= 0:
+            examine = examine.left
+        else:
+            examine = examine.right
+    return nil
+
+
 
 proc newNode[T]( value: T, parent: Node[T] = nil ): Node[T] =
     return Node[T](
@@ -162,6 +175,22 @@ proc rightmost[T]( node: Node[T] ): Node[T] =
     while result != nil and result.right != nil:
         result = result.right
 
+proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
+    ## Replaces a node with another node
+    var newParent: Node[T]
+
+    if node == tree.root:
+        tree.root = replacement
+    elif isLeftChild(node):
+        node.parent.left = replacement
+        newParent = node.parent.left
+    else:
+        node.parent.right = replacement
+        newParent = node.parent.right
+
+    if replacement != nil:
+        replacement.parent = newParent
+
 
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
 
@@ -231,6 +260,42 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
             var inserted = insert[T](self.root, self.compare, value)
             insertCase1(self, inserted)
 
+
+
+proc findDeleteTarget[T]( node: Node[T] ): Node[T] =
+    ## Deleting from a Red/Black tree starts by searching for a node with one
+    ## or no children. We then swap the node being deleted with that node,
+    ## and delete it from the tree. This function finds the node to swap with.
+    ## Note that it could return the very node it was given
+    if node.left == nil or node.right == nil:
+        result = node
+    else:
+        result = node.left
+        while result.left != nil and result.right != nil:
+            result = result.right
+
+proc delete*[T]( self: var RedBlackTree[T], value: T ) =
+    ## Deletes a value from the tree
+
+    # Find the value we are being asked to delete
+    var toDelete = find(self, value)
+    if toDelete == nil:
+        return
+
+    # We can't delete a node with two children, so find a successor that has
+    # 0 or 1 children that we can swap with the node we want to delete
+    var target = findDeleteTarget(toDelete)
+    if target != toDelete:
+        swap(target.value, toDelete.value)
+
+    # Precondition: At this point, we can guarantee that `target` contains the
+    # value we want to delete and that it contains 0 or 1 child.
+    assert(target.value == value)
+    assert(target.left == nil or target.right == nil)
+
+    var child = (if target.left == nil: target.right else: target.left)
+    replace(self, target, child)
+
 iterator items*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree
 
@@ -261,15 +326,7 @@ iterator reversed*[T]( tree: RedBlackTree[T] ): T =
 
 proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
-    var examine = tree.root
-    while examine != nil:
-        if examine.value == value:
-            return true
-        elif tree.compare(value, examine.value) <= 0:
-            examine = examine.left
-        else:
-            examine = examine.right
-    return false
+    return find(tree, value) != nil
 
 proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
