@@ -163,6 +163,10 @@ proc isLeftChild[T]( self: Node[T] ): bool =
     ## Whether this node is the left child of its parent
     self.parent != nil and self.parent.left == self
 
+proc isRed[T]( node: Node[T] ): bool {.inline.} =
+    ## Safely checks whether a value is a red node or not
+    return node != nil and node.color == red
+
 proc leftmost[T]( node: Node[T] ): Node[T] =
     ## Walks every left-ward child down to the bottom
     result = node
@@ -341,4 +345,53 @@ proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
         return None[T]()
     else:
         return Some[T]( rightmost(tree.root).value )
+
+
+proc validate[T]( node: Node[T] ): int =
+    ## Raises an assertion exception if a node is corrupt. Returns the number
+    ## of black nodes contained within this node (including this node)
+
+    if node == nil:
+        return 1
+
+    let left = node.left
+    let right = node.right
+
+    # Consecutive red links
+    if node.isRed and (left.isRed or right.isRed):
+        raise newException(AssertionError,
+            "Red node ($1) contains another red node ($2)" % [
+                $node.value, $left.value
+            ])
+
+    let leftHeight = validate(left)
+    let rightHeight = validate(right)
+
+    ## Invalid binary search tree
+    if left != nil and left.value > node.value:
+        raise newException(AssertionError,
+            "Left node ($1) contains a value greater than its parent ($1)" %[
+                $left.value, $node.value
+            ])
+
+    if right != nil and right.value <= node.value:
+        raise newException(AssertionError,
+            "Right node ($1) contains a value greater than its parent ($1)" %[
+                $right.value, $node.value
+            ])
+
+    ## Black height mismatch
+    if leftHeight != 0 and rightHeight != 0 and leftHeight != rightHeight:
+        raise newException(AssertionError,
+            "Imbalanced number of black nodes ($2 vs $3) beneath node ($1)" % [
+                $node.value, $leftHeight, $rightHeight
+            ])
+
+    # return the total number of black nodes
+    return leftHeight + (if node.isRed: 0 else: 1)
+
+proc validate*[T]( tree: RedBlackTree[T] ) =
+    ## Raises an assertion exception if a red/black tree is corrupt
+    discard validate(tree.root)
+
 
