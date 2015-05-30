@@ -312,7 +312,7 @@ iterator items*[T]( tree: RedBlackTree[T] ): T =
         else:
             while isRightChild(current):
                 current = current.parent
-            current = current.parent;
+            current = current.parent
 
 iterator reversed*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
@@ -326,7 +326,7 @@ iterator reversed*[T]( tree: RedBlackTree[T] ): T =
         else:
             while isLeftChild(current):
                 current = current.parent
-            current = current.parent;
+            current = current.parent
 
 proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
