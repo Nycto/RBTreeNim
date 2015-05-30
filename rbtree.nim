@@ -61,7 +61,7 @@ proc find[T]( tree: RedBlackTree[T], value: T ): Node[T] =
 
 
 
-proc newNode[T]( value: T, parent: Node[T] = nil ): Node[T] =
+proc newNode[T]( value: T, parent: Node[T] = nil ): Node[T] {.inline.} =
     return Node[T](
         left: nil, right: nil, parent: parent, color: red, value: value )
 
@@ -155,11 +155,11 @@ proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         grandparent.right = node
 
-proc isRightChild[T]( self: Node[T] ): bool =
+proc isRightChild[T]( self: Node[T] ): bool {.inline.} =
     ## Whether this node is the right child of its parent
     self.parent != nil and self.parent.right == self
 
-proc isLeftChild[T]( self: Node[T] ): bool =
+proc isLeftChild[T]( self: Node[T] ): bool {.inline.} =
     ## Whether this node is the left child of its parent
     self.parent != nil and self.parent.left == self
 
@@ -167,13 +167,13 @@ proc isRed[T]( node: Node[T] ): bool {.inline.} =
     ## Safely checks whether a value is a red node or not
     return node != nil and node.color == red
 
-proc leftmost[T]( node: Node[T] ): Node[T] =
+proc leftmost[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Walks every left-ward child down to the bottom
     result = node
     while result != nil and result.left != nil:
         result = result.left
 
-proc rightmost[T]( node: Node[T] ): Node[T] =
+proc rightmost[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Walks every rightward-ward child down to the bottom
     result = node
     while result != nil and result.right != nil:
@@ -266,7 +266,7 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
 
 
 
-proc findDeleteTarget[T]( node: Node[T] ): Node[T] =
+proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Deleting from a Red/Black tree starts by searching for a node with one
     ## or no children. We then swap the node being deleted with that node,
     ## and delete it from the tree. This function finds the node to swap with.
