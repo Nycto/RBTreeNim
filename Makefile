@@ -35,7 +35,7 @@ define DEFINE_TEST
 build/$1: test/$1.nim $(shell find -name $(patsubst %_test,%,$1).nim)
 
 	$(call COMPILE,test/$1.nim)
-	build/$1
+	build/$1 || mv build/$1 build/$1_failing
 
 .PHONY: $1
 $1: build/$1
