@@ -358,10 +358,15 @@ proc validate[T]( node: Node[T] ): int =
     let right = node.right
 
     # Consecutive red links
-    if node.isRed and (left.isRed or right.isRed):
+    if node.isRed and left.isRed:
         raise newException(AssertionError,
-            "Red node ($1) contains another red node ($2)" % [
+            "Red node ($1) contains another red node (left: $2)" % [
                 $node.value, $left.value
+            ])
+    elif node.isRed and right.isRed:
+        raise newException(AssertionError,
+            "Red node ($1) contains another red node (right: $2)" % [
+                $node.value, $right.value
             ])
 
     let leftHeight = validate(left)
