@@ -104,8 +104,12 @@ proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     if parent == nil:
         return
 
+    # It looks like nim is trying to garbage collect this node before it's
+    # actually gone for some reason. This is a hack to get around that
+    var saved = node
+
     var grandparent = parent.parent
-    var child = node.left
+    var child = saved.left
 
     # Move the child over
     parent.right = child
@@ -113,27 +117,31 @@ proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
         child.parent = parent
 
     # Move the parent around
-    node.left = parent
-    parent.parent = node
+    saved.left = parent
+    parent.parent = saved
 
     # Move the node itself
-    node.parent = grandparent
+    saved.parent = grandparent
 
     # Update the grandparent, swapping the root of the tree if needed
     if grandparent == nil:
-        tree.root = node
+        tree.root = saved
     elif grandparent.left == parent:
-        grandparent.left = node
+        grandparent.left = saved
     else:
-        grandparent.right = node
+        grandparent.right = saved
 
 proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     var parent = node.parent
     if parent == nil:
         return
 
+    # It looks like nim is trying to garbage collect this node before it's
+    # actually gone for some reason. This is a hack to get around that
+    var saved = node
+
     var grandparent = parent.parent
-    var child = node.right
+    var child = saved.right
 
     # Move the child over
     parent.left = child
@@ -141,19 +149,19 @@ proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
         child.parent = parent
 
     # Move the parent around
-    node.right = parent
-    parent.parent = node
+    saved.right = parent
+    parent.parent = saved
 
     # Move the node itself
-    node.parent = grandparent
+    saved.parent = grandparent
 
     # Update the grandparent, swapping the root of the tree if needed
     if grandparent == nil:
-        tree.root = node
+        tree.root = saved
     elif grandparent.left == parent:
-        grandparent.left = node
+        grandparent.left = saved
     else:
-        grandparent.right = node
+        grandparent.right = saved
 
 proc isRightChild[T]( self: Node[T] ): bool {.inline.} =
     ## Whether this node is the right child of its parent
@@ -167,6 +175,14 @@ proc isRed[T]( node: Node[T] ): bool {.inline.} =
     ## Safely checks whether a value is a red node or not
     return node != nil and node.color == red
 
+proc isBlack[T]( node: Node[T] ): bool {.inline.} =
+    ## Safely checks whether a node is black
+    return node == nil or node.color == black
+
+proc isAllBlack[T]( node: Node[T] ): bool {.inline.} =
+    ## Safely checks if a node and its children are all black
+    return node.isBlack and node.left.isBlack and node.right.isBlack
+
 proc leftmost[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Walks every left-ward child down to the bottom
     result = node
@@ -179,21 +195,25 @@ proc rightmost[T]( node: Node[T] ): Node[T] {.inline.} =
     while result != nil and result.right != nil:
         result = result.right
 
+proc sibling[T]( node: Node[T] ): Node[T] =
+    ## Returns the other child of the parent of this node
+    if node == node.parent.left:
+        return node.parent.right
+    else:
+        return node.parent.left
+
 proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
     ## Replaces a node with another node
-    var newParent: Node[T]
-
-    if node == tree.root:
+    if node.parent == nil:
         tree.root = replacement
-    elif isLeftChild(node):
-        node.parent.left = replacement
-        newParent = node.parent.left
     else:
-        node.parent.right = replacement
-        newParent = node.parent.right
+        if node.isLeftChild:
+            node.parent.left = replacement
+        else:
+            node.parent.right = replacement
 
     if replacement != nil:
-        replacement.parent = newParent
+        replacement.parent = node.parent
 
 
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
@@ -241,7 +261,7 @@ proc insertCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
 proc insertCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## Case 2: The current node's parent P is black, so both children of every
     ## red node are black
-    if node.parent.color == black:
+    if node.parent.isBlack:
         discard # Tree is still valid
     else:
         insertCase3(tree, node)
@@ -265,6 +285,76 @@ proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
             insertCase1(self, inserted)
 
 
+proc deleteCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
+
+proc deleteCase6[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Case 6: S is black, S's right child is red, and N is the left child of
+    ## its parent P
+    var sibling = node.sibling
+
+    sibling.color = node.parent.color
+    node.parent.color = black
+
+    if node.isLeftChild:
+        sibling.right.color = black
+        rotateLeft(tree, sibling)
+    else:
+        sibling.left.color = black
+        rotateRight(tree, sibling)
+
+proc deleteCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Case 5: S is black, S's left child is red, S's right child is black, and
+    ## N is the left child of its parent
+    var sibling = node.sibling
+    if sibling.isBlack:
+        if node.isLeftChild and sibling.right.isBlack and sibling.left.isRed:
+            sibling.color = red
+            sibling.left.color = black
+            rotateRight(tree, sibling.left)
+        elif node.isRightChild and sibling.right.isRed and sibling.left.isBlack:
+            sibling.color = red
+            sibling.right.color = black
+            rotateLeft(tree, sibling.right)
+    deleteCase6(tree, node)
+
+proc deleteCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Case 4: S and S's children are black, but P is red
+    var sibling = node.sibling
+    if node.parent.isRed and sibling.isAllBlack:
+        sibling.color = red
+        node.parent.color = black
+    else:
+        deleteCase5(tree, node)
+
+proc deleteCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Case 3: P, S, and S's children are black
+    var sibling = node.sibling
+    if node.parent.isBlack and sibling.isAllBlack:
+        sibling.color = red
+        deleteCase1(tree, node.parent)
+    else:
+        deleteCase4(tree, node)
+
+proc deleteCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Case 2: The sibling is red
+
+    var sibling = node.sibling
+
+    if sibling.isRed:
+        node.parent.color = red
+        sibling.color = black
+        if node.isLeftChild:
+            rotateLeft(tree, sibling)
+        else:
+            rotateRight(tree, sibling)
+
+    deleteCase3(tree, node)
+
+proc deleteCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
+    ## Case 1: N is the new root
+    if node.parent != nil:
+        deleteCase2(tree, node)
+
 
 proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Deleting from a Red/Black tree starts by searching for a node with one
@@ -286,7 +376,7 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
     if toDelete == nil:
         return
 
-    # We can't delete a node with two children, so find a successor that has
+    # We can't delete a node with two children, so find a predecessor that has
     # 0 or 1 children that we can swap with the node we want to delete
     var target = findDeleteTarget(toDelete)
     if target != toDelete:
@@ -297,8 +387,16 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
     assert(target.value == value)
     assert(target.left == nil or target.right == nil)
 
-    var child = (if target.left == nil: target.right else: target.left)
+    var child = if target.right == nil: target.left else: target.right
+    if target.isBlack:
+        target.color = if child.isBlack: black else: red
+        deleteCase1(self, target)
+
     replace(self, target, child)
+
+    if self.root.isRed:
+        self.root.color = black
+
 
 iterator items*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree

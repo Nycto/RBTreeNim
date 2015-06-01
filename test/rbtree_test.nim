@@ -110,4 +110,66 @@ suite "A Red/Black Tree should":
         tree.delete(10)
         require( tree == "RedBlackTree()" )
 
+    test "Deleting the only node from a tree":
+        var tree = newRBTree[int]()
+        tree.insert(10)
+        tree.delete(10)
+        require( tree == "RedBlackTree()" )
+
+    test "Deleting a red leaf from a tree":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 3)
+        tree.delete(3)
+        require( tree == "RedBlackTree(B 2 (R 1) ())" )
+        tree.delete(1)
+        require( tree == "RedBlackTree(B 2)" )
+
+    test "Delete case 1":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 3)
+        tree.delete(2)
+        require( tree == "RedBlackTree(B 1 () (R 3))" )
+
+    test "Delete case 2 (rotate left) and case 4":
+        var tree = newRBTree[int]()
+        tree.insert(5, 2, 7, 6, 8, 9)
+        tree.delete(2)
+        require( tree == "RedBlackTree(B 7 (B 5 () (R 6)) (B 8 () (R 9)))" )
+
+    test "Delete case 2 (rotate right) and case 4":
+        var tree = newRBTree[int]()
+        tree.insert(5, 6, 3, 2, 4, 1)
+        tree.delete(6)
+        require( tree == "RedBlackTree(B 3 (B 2 (R 1) ()) (B 5 (R 4) ()))" )
+
+    test "Delete case 3":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 3, 4)
+        tree.delete(4)
+        tree.delete(1)
+        require( tree == "RedBlackTree(B 2 () (R 3))" )
+
+    test "Delete case 5 (rotate left)":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 5, 6, 3, 4)
+        tree.delete(6)
+        require( tree == "RedBlackTree(B 2 (B 1) (R 4 (B 3) (B 5)))" )
+
+    test "Delete case 5 (rotate right)":
+        var tree = newRBTree[int]()
+        tree.insert(5, 2, 6, 1, 4, 3)
+        tree.delete(1)
+        require( tree == "RedBlackTree(B 5 (R 3 (B 2) (B 4)) (B 6))" )
+
+    test "Delete case 6 (rotate left)":
+        var tree = newRBTree[int]()
+        tree.insert(50, 75, 25, 70, 80)
+        tree.delete(25)
+        require( tree == "RedBlackTree(B 75 (B 50 () (R 70)) (B 80))" )
+
+    test "Delete case 6 (rotate right)":
+        var tree = newRBTree[int]()
+        tree.insert(5, 2, 6, 1, 3)
+        tree.delete(6)
+        require( tree == "RedBlackTree(B 2 (B 1) (B 5 (R 3) ()))" )
 
