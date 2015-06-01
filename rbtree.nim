@@ -179,17 +179,12 @@ proc isAllBlack[T]( node: Node[T] ): bool {.inline.} =
     ## Safely checks if a node and its children are all black
     return node.isBlack and node.left.isBlack and node.right.isBlack
 
-proc leftmost[T]( node: Node[T] ): Node[T] {.inline.} =
-    ## Walks every left-ward child down to the bottom
-    result = node
-    while result != nil and result.left != nil:
-        result = result.left
-
-proc rightmost[T]( node: Node[T] ): Node[T] {.inline.} =
-    ## Walks every rightward-ward child down to the bottom
-    result = node
-    while result != nil and result.right != nil:
-        result = result.right
+template far[T]( node: Node[T], direction: expr ): Node[T] =
+    ## Walks every child in a specific direction down to the bottom
+    var result = node
+    while result != nil and result.`direction` != nil:
+        result = result.`direction`
+    result # implicit return
 
 proc sibling[T]( node: Node[T] ): Node[T] =
     ## Returns the other child of the parent of this node
@@ -397,12 +392,12 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
 template defineIter( low: expr, high: expr ) {.immediate.} =
     ## Defines the content of the `items` and `reversed` iterators
 
-    var current = `low most`(tree.root)
+    var current = tree.root.far(low)
     while current != nil:
         yield current.value
 
         if current.`high` != nil:
-            current = `low most`(current.`high`)
+            current = current.`high`.far(low)
         else:
             while current.isOn(high):
                 current = current.parent
@@ -422,20 +417,20 @@ proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     return find(tree, value) != nil
 
 
-template defineMinMax( name: expr ) {.immediate.} =
+template defineMinMax( direction: expr ) {.immediate.} =
     ## Defines the content of the min and max functions
     if tree.root == nil:
         return None[T]()
     else:
-        return Some[T]( `name`(tree.root).value )
+        return Some[T]( tree.root.far(direction).value )
 
 proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
-    defineMinMax(leftmost)
+    defineMinMax(left)
 
 proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
-    defineMinMax(rightmost)
+    defineMinMax(right)
 
 
 proc validate[T]( node: Node[T] ): int =
