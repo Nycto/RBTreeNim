@@ -398,33 +398,28 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
         self.root.color = black
 
 
-iterator items*[T]( tree: RedBlackTree[T] ): T =
-    ## Iterates over each value in a tree
+template defineIter( low: expr, high: expr, highUpper: expr ) {.immediate.} =
+    ## Defines the content of the `items` and `reversed` iterators
 
-    var current = leftmost(tree.root)
+    var current = `low most`(tree.root)
     while current != nil:
         yield current.value
 
-        if current.right != nil:
-            current = leftmost(current.right)
+        if current.`high` != nil:
+            current = `low most`(current.`high`)
         else:
-            while isRightChild(current):
+            while `is highUpper Child`(current):
                 current = current.parent
             current = current.parent
+
+iterator items*[T]( tree: RedBlackTree[T] ): T =
+    ## Iterates over each value in a tree
+    defineIter(left, right, Right)
 
 iterator reversed*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
+    defineIter(right, left, Left)
 
-    var current = rightmost(tree.root)
-    while current != nil:
-        yield current.value
-
-        if current.left != nil:
-            current = rightmost(current.left)
-        else:
-            while isLeftChild(current):
-                current = current.parent
-            current = current.parent
 
 proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
