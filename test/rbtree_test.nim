@@ -1,7 +1,8 @@
 import unittest, rbtree, sequtils, optional_t
 
 proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
-    checkpoint("Tree is: " & $actual)
+    checkpoint("Tree is:   " & $actual)
+    checkpoint("Expecting: " & expected)
     validate(actual)
     $actual == expected
 
