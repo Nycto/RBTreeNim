@@ -430,19 +430,21 @@ proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     ## Returns whether this tree contains the specific element
     return find(tree, value) != nil
 
-proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
-    ## Returns the minimum value in a tree
+
+template defineMinMax( name: expr ) {.immediate.} =
+    ## Defines the content of the min and max functions
     if tree.root == nil:
         return None[T]()
     else:
-        return Some[T]( leftmost(tree.root).value )
+        return Some[T]( `name`(tree.root).value )
+
+proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
+    ## Returns the minimum value in a tree
+    defineMinMax(leftmost)
 
 proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
-    if tree.root == nil:
-        return None[T]()
-    else:
-        return Some[T]( rightmost(tree.root).value )
+    defineMinMax(rightmost)
 
 
 proc validate[T]( node: Node[T] ): int =
