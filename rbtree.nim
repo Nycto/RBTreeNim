@@ -99,7 +99,10 @@ proc uncle[T](node: var Node[T]): Node[T] {.inline.} =
     else:
         return grandparent.left
 
-proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+
+template rotate( direction: expr, opposite: expr ) {.immediate.} =
+    ## Rotates a node into its parents position
+
     var parent = node.parent
     if parent == nil:
         return
@@ -109,15 +112,15 @@ proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     var saved = node
 
     var grandparent = parent.parent
-    var child = saved.left
+    var child = saved.`direction`
 
     # Move the child over
-    parent.right = child
+    parent.`opposite` = child
     if child != nil:
         child.parent = parent
 
     # Move the parent around
-    saved.left = parent
+    saved.`direction` = parent
     parent.parent = saved
 
     # Move the node itself
@@ -130,38 +133,15 @@ proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
         grandparent.left = saved
     else:
         grandparent.right = saved
+
+proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+    ## Rotates a node to the left
+    rotate(left, right)
 
 proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
-    var parent = node.parent
-    if parent == nil:
-        return
+    ## Rotates a node to the right
+    rotate(right, left)
 
-    # It looks like nim is trying to garbage collect this node before it's
-    # actually gone for some reason. This is a hack to get around that
-    var saved = node
-
-    var grandparent = parent.parent
-    var child = saved.right
-
-    # Move the child over
-    parent.left = child
-    if child != nil:
-        child.parent = parent
-
-    # Move the parent around
-    saved.right = parent
-    parent.parent = saved
-
-    # Move the node itself
-    saved.parent = grandparent
-
-    # Update the grandparent, swapping the root of the tree if needed
-    if grandparent == nil:
-        tree.root = saved
-    elif grandparent.left == parent:
-        grandparent.left = saved
-    else:
-        grandparent.right = saved
 
 template isOn[T]( self: Node[T], side: expr ): bool =
     ## Whether this node is the right child of its parent
