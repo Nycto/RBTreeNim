@@ -163,13 +163,9 @@ proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         grandparent.right = saved
 
-proc isRightChild[T]( self: Node[T] ): bool {.inline.} =
+template isOn[T]( self: Node[T], side: expr ): bool =
     ## Whether this node is the right child of its parent
-    self.parent != nil and self.parent.right == self
-
-proc isLeftChild[T]( self: Node[T] ): bool {.inline.} =
-    ## Whether this node is the left child of its parent
-    self.parent != nil and self.parent.left == self
+    self.parent != nil and self.parent.`side` == self
 
 proc isRed[T]( node: Node[T] ): bool {.inline.} =
     ## Safely checks whether a value is a red node or not
@@ -207,7 +203,7 @@ proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
     if node.parent == nil:
         tree.root = replacement
     else:
-        if node.isLeftChild:
+        if node.isOn(left):
             node.parent.left = replacement
         else:
             node.parent.right = replacement
@@ -295,7 +291,7 @@ proc deleteCase6[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     sibling.color = node.parent.color
     node.parent.color = black
 
-    if node.isLeftChild:
+    if node.isOn(left):
         sibling.right.color = black
         rotateLeft(tree, sibling)
     else:
@@ -307,11 +303,11 @@ proc deleteCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## N is the left child of its parent
     var sibling = node.sibling
     if sibling.isBlack:
-        if node.isLeftChild and sibling.right.isBlack and sibling.left.isRed:
+        if node.isOn(left) and sibling.right.isBlack and sibling.left.isRed:
             sibling.color = red
             sibling.left.color = black
             rotateRight(tree, sibling.left)
-        elif node.isRightChild and sibling.right.isRed and sibling.left.isBlack:
+        elif node.isOn(right) and sibling.right.isRed and sibling.left.isBlack:
             sibling.color = red
             sibling.right.color = black
             rotateLeft(tree, sibling.right)
@@ -343,7 +339,7 @@ proc deleteCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     if sibling.isRed:
         node.parent.color = red
         sibling.color = black
-        if node.isLeftChild:
+        if node.isOn(left):
             rotateLeft(tree, sibling)
         else:
             rotateRight(tree, sibling)
@@ -398,7 +394,7 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
         self.root.color = black
 
 
-template defineIter( low: expr, high: expr, highUpper: expr ) {.immediate.} =
+template defineIter( low: expr, high: expr ) {.immediate.} =
     ## Defines the content of the `items` and `reversed` iterators
 
     var current = `low most`(tree.root)
@@ -408,17 +404,17 @@ template defineIter( low: expr, high: expr, highUpper: expr ) {.immediate.} =
         if current.`high` != nil:
             current = `low most`(current.`high`)
         else:
-            while `is highUpper Child`(current):
+            while current.isOn(high):
                 current = current.parent
             current = current.parent
 
 iterator items*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree
-    defineIter(left, right, Right)
+    defineIter(left, right)
 
 iterator reversed*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
-    defineIter(right, left, Left)
+    defineIter(right, left)
 
 
 proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
