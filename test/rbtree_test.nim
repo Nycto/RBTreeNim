@@ -1,4 +1,6 @@
-import unittest, rbtree, sequtils, optional_t
+import unittest, rbtree, sequtils, strutils, optional_t
+
+abortOnError = true
 
 proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
     checkpoint("Tree is:   " & $actual)
@@ -172,4 +174,30 @@ suite "A Red/Black Tree should":
         tree.insert(5, 2, 6, 1, 3)
         tree.delete(6)
         require( tree == "RedBlackTree(B 2 (B 1) (B 5 (R 3) ()))" )
+
+    test "Pass a gauntlet of operations":
+        var tree = newRBTree[int]()
+
+        var lineNumber = 0
+        for line in lines("./test/gauntlet.txt"):
+            lineNumber = lineNumber + 1
+
+            let command = line[0..2]
+            proc content: string = line[4..(line.len)]
+
+            try:
+                case command
+                of "CMP":
+                    let expected = "RedBlackTree" & content()
+                    assert(tree == expected)
+                of "INS":
+                    tree.insert( parseInt(content()) )
+                of "DEL":
+                    tree.delete( parseInt(content()) )
+                else:
+                    raise newException(AssertionError,
+                        "Unknown test command: " & command)
+            except:
+                checkpoint("Script line #" & $lineNumber)
+                raise
 
