@@ -166,12 +166,9 @@ template far[T]( node: Node[T], direction: expr ): Node[T] =
         result = result.`direction`
     result # implicit return
 
-proc sibling[T]( node: Node[T] ): Node[T] =
+proc sibling[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Returns the other child of the parent of this node
-    if node == node.parent.left:
-        return node.parent.right
-    else:
-        return node.parent.left
+    if node.isOn(left): node.parent.right else: node.parent.left
 
 proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
     ## Replaces a node with another node
@@ -195,7 +192,7 @@ proc insertCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     var grandparent = grandparent(node)
     node.parent.color = black
     grandparent.color = red
-    if node == node.parent.left:
+    if node.isOn(left):
         rotateRight(tree, node.parent)
     else:
         rotateLeft(tree, node.parent)
@@ -204,11 +201,10 @@ proc insertCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## Case 4: The parent P is red but the uncle U is black; also, the current
     ## node N is the right child of P, and P in turn is the left child of its
     ## parent G
-    let grandparent = grandparent(node)
-    if node == node.parent.right and node.parent == grandparent.left:
+    if node.isOn(right) and node.parent.isOn(left):
         rotateLeft(tree, node)
         insertCase5(tree, node.left)
-    elif node == node.parent.left and node.parent == grandparent.right:
+    elif node.isOn(left) and node.parent.isOn(right):
         rotateRight(tree, node)
         insertCase5(tree, node.right)
     else:
@@ -220,7 +216,7 @@ proc insertCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## that all paths from any given node to its leaf nodes contain the same
     ## number of black nodes)
     var uncle = uncle(node)
-    if uncle != nil and uncle.color == red:
+    if uncle.isRed:
         node.parent.color = black
         uncle.color = black
         var grandparent = grandparent(node)
@@ -232,9 +228,7 @@ proc insertCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
 proc insertCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## Case 2: The current node's parent P is black, so both children of every
     ## red node are black
-    if node.parent.isBlack:
-        discard # Tree is still valid
-    else:
+    if not node.parent.isBlack:
         insertCase3(tree, node)
 
 proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
