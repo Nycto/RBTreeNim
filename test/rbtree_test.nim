@@ -3,8 +3,8 @@ import unittest, rbtree, sequtils, strutils, optional_t
 abortOnError = true
 
 proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
-    checkpoint("Tree is:   " & $actual)
     checkpoint("Expecting: " & expected)
+    checkpoint("Tree is:   " & $actual)
     validate(actual)
     $actual == expected
 
@@ -174,6 +174,12 @@ suite "A Red/Black Tree should":
         tree.insert(5, 2, 6, 1, 3)
         tree.delete(6)
         require( tree == "RedBlackTree(B 2 (B 1) (B 5 (R 3) ()))" )
+
+    test "Delete predecessor is a right branch":
+        var tree = newRBTree[int]()
+        tree.insert(5, 3, 6, 4)
+        tree.delete(5)
+        require( tree == "RedBlackTree(B 4 (B 3) (B 6))" )
 
     test "Pass a gauntlet of operations":
         var tree = newRBTree[int]()
