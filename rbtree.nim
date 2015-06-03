@@ -435,13 +435,13 @@ proc validate[T]( node: Node[T] ): int =
     ## Invalid binary search tree
     if left != nil and left.value > node.value:
         raise newException(AssertionError,
-            "Left node ($1) contains a value greater than its parent ($1)" % [
+            "Left node ($1) is greater than its parent ($2)" % [
                 $left.value, $node.value
             ])
 
-    if right != nil and right.value <= node.value:
+    if right != nil and right.value < node.value:
         raise newException(AssertionError,
-            "Right node ($1) contains a value greater than its parent ($1)" % [
+            "Right node ($1) is less than its parent ($2)" % [
                 $right.value, $node.value
             ])
 
