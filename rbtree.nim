@@ -69,7 +69,7 @@ proc insert[T](
     self: var Node[T], compare: proc(a, b: T): int, value: T
 ): Node[T] =
     ## Does a basic binary search tree insert, returning the new node
-    if compare(value, self.value) <= 0:
+    if compare(value, self.value) < 0:
         if self.left == nil:
             result = newNode( value, self )
             self.left = result

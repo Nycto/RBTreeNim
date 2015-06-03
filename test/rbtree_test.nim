@@ -58,6 +58,22 @@ suite "A Red/Black Tree should":
                 "(R 8 (B 6 () (R 7)) (B 10 (R 9) ())))"
         )
 
+    test "Inserting the same value should add them to the right":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 3)
+        tree.insert(3)
+        require(tree == "RedBlackTree(B 2 (B 1) (B 3 () (R 3)))")
+        tree.insert(3)
+        require(tree == "RedBlackTree(B 2 (B 1) (B 3 (R 3) (R 3)))")
+        tree.insert(1)
+        require(tree == "RedBlackTree(B 2 " &
+            "(B 1 () (R 1)) " &
+            "(B 3 (R 3) (R 3)))")
+        tree.insert(1)
+        require(tree == "RedBlackTree(B 2 " &
+            "(B 1 (R 1) (R 1)) " &
+            "(B 3 (R 3) (R 3)))")
+
     test "Iteration":
         var tree = newRBTree[int]()
         tree.insert(16,19,11,7,5,4,2,15,20,3,6,8,13,14,1,12,18,17,10,9)
