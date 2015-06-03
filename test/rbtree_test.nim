@@ -197,6 +197,12 @@ suite "A Red/Black Tree should":
         tree.delete(5)
         require( tree == "RedBlackTree(B 4 (B 3) (B 6))" )
 
+    test "Deleting a node with a left child but no right":
+        var tree = newRBTree[int]()
+        tree.insert(1, 2, 4, 3)
+        tree.delete(4)
+        require( tree == "RedBlackTree(B 2 (B 1) (B 3))" )
+
     proc runGauntlet( file: string ) =
         ## Pulls commands from a file and executes them against a tree
         var tree = newRBTree[int]()

@@ -326,7 +326,7 @@ proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     ## or no children. We then swap the node being deleted with that node,
     ## and delete it from the tree. This function finds the node to swap with.
     ## Note that it could return the very node it was given
-    if node.left == nil or node.right == nil:
+    if node.left == nil:
         result = node
     else:
         result = node.left
