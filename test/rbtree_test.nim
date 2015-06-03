@@ -197,11 +197,12 @@ suite "A Red/Black Tree should":
         tree.delete(5)
         require( tree == "RedBlackTree(B 4 (B 3) (B 6))" )
 
-    test "Pass a gauntlet of operations":
+    proc runGauntlet( file: string ) =
+        ## Pulls commands from a file and executes them against a tree
         var tree = newRBTree[int]()
 
         var lineNumber = 0
-        for line in lines("./test/gauntlet.txt"):
+        for line in lines(file):
             lineNumber = lineNumber + 1
 
             let command = line[0..2]
@@ -214,12 +215,17 @@ suite "A Red/Black Tree should":
                     assert(tree == expected)
                 of "INS":
                     tree.insert( parseInt(content()) )
+                    validate(tree)
                 of "DEL":
                     tree.delete( parseInt(content()) )
+                    validate(tree)
                 else:
                     raise newException(AssertionError,
                         "Unknown test command: " & command)
             except:
                 checkpoint("Script line #" & $lineNumber)
                 raise
+
+    test "Maintain red/black rules through a large number of operations":
+        runGauntlet("./test/10000_operations.txt")
 
