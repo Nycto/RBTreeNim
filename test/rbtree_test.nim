@@ -3,10 +3,52 @@ import unittest, rbtree, sequtils, strutils, optional_t
 abortOnError = true
 
 proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
+    ## Compares a tree to an expected serialized version
+    let actualStr = $actual
     checkpoint("Expecting: " & expected)
-    checkpoint("Tree is:   " & $actual)
+    checkpoint("Tree is:   " & actualStr)
     validate(actual)
-    $actual == expected
+    actualStr == expected
+
+proc compareTails( expect: string, drop: int, versus: string ): bool =
+    ## Returns whether two strings end with the same value
+    for i in countup(drop, expect.len - 1):
+        if expect[i] != versus[i + versus.len - expect.len]:
+            return false
+    return true
+
+proc runGauntlet( file: string ) =
+    ## Pulls commands from a file and executes them against a tree
+    var tree = newRBTree[int]()
+
+    var lineNumber = 0
+    for line in lines(file):
+        lineNumber = lineNumber + 1
+
+        let command = line[0..2]
+        proc content: string = line[4..(line.len)]
+
+        try:
+            case command
+            of "CMP":
+                validate(tree)
+                let valid = compareTails(line, 4, $tree)
+                if not valid:
+                    checkpoint("Expected: RedBlackTree" & content())
+                    checkpoint("Tree is:  " & $tree)
+                    assert(false)
+            of "INS":
+                tree.insert( parseInt(content()) )
+                validate(tree)
+            of "DEL":
+                tree.delete( parseInt(content()) )
+                validate(tree)
+            else:
+                raise newException(AssertionError,
+                    "Unknown test command: " & command)
+        except:
+            checkpoint("Script line #" & $lineNumber)
+            raise
 
 suite "A Red/Black Tree should":
 
@@ -208,35 +250,6 @@ suite "A Red/Black Tree should":
         tree.insert(1, 2, 3, 4)
         tree.delete(3)
         require( tree == "RedBlackTree(B 2 (B 1) (B 4))" )
-
-    proc runGauntlet( file: string ) =
-        ## Pulls commands from a file and executes them against a tree
-        var tree = newRBTree[int]()
-
-        var lineNumber = 0
-        for line in lines(file):
-            lineNumber = lineNumber + 1
-
-            let command = line[0..2]
-            proc content: string = line[4..(line.len)]
-
-            try:
-                case command
-                of "CMP":
-                    let expected = "RedBlackTree" & content()
-                    assert(tree == expected)
-                of "INS":
-                    tree.insert( parseInt(content()) )
-                    validate(tree)
-                of "DEL":
-                    tree.delete( parseInt(content()) )
-                    validate(tree)
-                else:
-                    raise newException(AssertionError,
-                        "Unknown test command: " & command)
-            except:
-                checkpoint("Script line #" & $lineNumber)
-                raise
 
     test "Maintain red/black rules through a large number of operations":
         runGauntlet("./test/10000_operations.txt")
