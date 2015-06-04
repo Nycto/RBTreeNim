@@ -2,7 +2,7 @@
 # A red/black binary search tree
 #
 
-import strutils, optional_t
+import strutils, optional_t, ropes
 
 type
     Color = enum ## The color of a node
@@ -31,21 +31,27 @@ proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T] =
   # Creates a new Red/Black tree
   return RedBlackTree[T]( root: nil, compare: compare )
 
-proc `$` [T]( self: Node[T] ): string =
+proc `$` [T]( accum: var Rope, self: Node[T] ) =
     ## Converts a node to a string
     if self == nil:
-        result = "()"
+        accum.add("()")
     else:
-        result = "(" &
-            (if self.color == red: "R" else: "B") & " " &
-            $(self.value)
+        accum.add("(")
+        accum.add(if self.color == red: "R" else: "B")
+        accum.add(" ")
+        accum.add($(self.value))
         if self.left != nil or self.right != nil:
-            result.add(" " & $(self.left) & " " & $(self.right))
-        result.add(")")
+            accum.add(" ")
+            `$`(accum, self.left)
+            accum.add(" ")
+            `$`(accum, self.right)
+        accum.add(")")
 
 proc `$`* [T]( self: RedBlackTree[T] ): string =
     ## Returns a tree as a string
-    return "RedBlackTree" & `$`[T](self.root)
+    var accum = rope("RedBlackTree")
+    `$`(accum, self.root)
+    return $accum
 
 proc find[T]( tree: RedBlackTree[T], value: T ): Node[T] =
     ## Find a value in the tree and returns the containing node. Or nil
