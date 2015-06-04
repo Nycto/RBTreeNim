@@ -1,6 +1,6 @@
-#
-# A red/black binary search tree
-#
+##
+## A red/black binary search tree
+##
 
 import strutils, optional_t, ropes
 
@@ -28,7 +28,7 @@ type
 
 
 proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T] =
-  # Creates a new Red/Black tree
+  ## Creates a new Red/Black tree
   return RedBlackTree[T]( root: nil, compare: compare )
 
 proc `$` [T]( accum: var Rope, self: Node[T] ) =
@@ -463,7 +463,9 @@ proc validate[T]( node: Node[T] ): int =
     return leftHeight + (if node.isRed: 0 else: 1)
 
 proc validate*[T]( tree: RedBlackTree[T] ) =
-    ## Raises an assertion exception if a red/black tree is corrupt
+    ## Raises an assertion exception if a red/black tree is corrupt. This is
+    ## primarily for testing purposes and isn't something you should need to
+    ## call from an application.
     discard validate(tree.root)
 
 
