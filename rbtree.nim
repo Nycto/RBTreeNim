@@ -334,15 +334,11 @@ proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Note that it could return the very node it was given
     if node.left == nil:
         if node.right == nil:
-            result = node
+            return node
         else:
-            result = node.right
-            while result.left != nil:
-                result = result.left
+            return node.right.far(left)
     else:
-        result = node.left
-        while result.right != nil:
-            result = result.right
+        return node.left.far(right)
 
 proc delete*[T]( self: var RedBlackTree[T], value: T ) =
     ## Deletes a value from the tree
