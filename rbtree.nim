@@ -106,7 +106,10 @@ proc uncle[T](node: var Node[T]): Node[T] {.inline.} =
         return grandparent.left
 
 
-template rotate( direction: expr, opposite: expr ) {.immediate.} =
+template rotate[T](
+    tree: var RedBlackTree[T], node: var Node[T],
+    direction: expr, opposite: expr
+) =
     ## Rotates a node into its parents position
 
     var parent = node.parent
@@ -142,11 +145,11 @@ template rotate( direction: expr, opposite: expr ) {.immediate.} =
 
 proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## Rotates a node to the left
-    rotate(left, right)
+    rotate(tree, node, left, right)
 
 proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     ## Rotates a node to the right
-    rotate(right, left)
+    rotate(tree, node, right, left)
 
 
 template isOn[T]( self: Node[T], side: expr ): bool =
@@ -370,27 +373,27 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
         self.root.color = black
 
 
-template defineIter( low: expr, high: expr ) {.immediate.} =
+template defineIter[T]( tree: RedBlackTree[T], low: expr, high: expr ) =
     ## Defines the content of the `items` and `reversed` iterators
 
-    var current = tree.root.far(low)
+    var current = far(tree.root, low)
     while current != nil:
         yield current.value
 
         if current.`high` != nil:
-            current = current.`high`.far(low)
+            current = far(current.`high`, low)
         else:
-            while current.isOn(high):
+            while isOn(current, high):
                 current = current.parent
             current = current.parent
 
 iterator items*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree
-    defineIter(left, right)
+    defineIter(tree, left, right)
 
 iterator reversed*[T]( tree: RedBlackTree[T] ): T =
     ## Iterates over each value in a tree in reverse order
-    defineIter(right, left)
+    defineIter(tree, right, left)
 
 
 proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
@@ -398,20 +401,20 @@ proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
     return find(tree, value) != nil
 
 
-template defineMinMax( direction: expr ) {.immediate.} =
+template defineMinMax[T]( tree: RedBlackTree[T], direction: expr ) =
     ## Defines the content of the min and max functions
     if tree.root == nil:
         return None[T]()
     else:
-        return Some[T]( tree.root.far(direction).value )
+        return Some[T]( far(tree.root, direction).value )
 
 proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
-    defineMinMax(left)
+    tree.defineMinMax(left)
 
 proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
     ## Returns the minimum value in a tree
-    defineMinMax(right)
+    tree.defineMinMax(right)
 
 
 proc validate[T]( node: Node[T] ): int =
