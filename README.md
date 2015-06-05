@@ -3,6 +3,11 @@ RBTreeNim [![Build Status](https://travis-ci.org/Nycto/RBTreeNim.svg?branch=mast
 
 A Red/Black Tree implementation in Nim
 
+API Docs
+--------
+
+http://nycto.github.io/RBTreeNim/rbtree.html
+
 A Quick Tour
 ------------
 
