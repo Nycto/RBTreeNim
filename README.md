@@ -3,6 +3,12 @@ RBTreeNim [![Build Status](https://travis-ci.org/Nycto/RBTreeNim.svg?branch=mast
 
 A Red/Black Tree implementation in Nim
 
+Red/Black trees are self balancing binary search trees that maintain structure
+by tracking an extra bit of state about each node. This is then used to examine
+relationships between parents and children, allowing appropriate rotations to
+be performed. See
+[Wikipedia](http://en.wikipedia.org/wiki/Red%E2%80%93black_tree) for more info.
+
 API Docs
 --------
 
