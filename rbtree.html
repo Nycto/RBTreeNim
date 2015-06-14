@@ -1182,6 +1182,10 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="min*[T](tree: RedBlackTree[T]): Option[T]"><wbr />min</a></li>
   <li><a class="reference" href="#max,RedBlackTree[T]"
     title="max*[T](tree: RedBlackTree[T]): Option[T]"><wbr />max</a></li>
+  <li><a class="reference" href="#ceil,RedBlackTree[T],T"
+    title="ceil*[T](tree: RedBlackTree[T]; value: T): Option[T]"><wbr />ceil</a></li>
+  <li><a class="reference" href="#floor,RedBlackTree[T],T"
+    title="floor*[T](tree: RedBlackTree[T]; value: T): Option[T]"><wbr />floor</a></li>
   <li><a class="reference" href="#validate,RedBlackTree[T]"
     title="validate*[T](tree: RedBlackTree[T])"><wbr />validate</a></li>
 
@@ -1260,6 +1264,16 @@ Returns the minimum value in a tree
 Returns the minimum value in a tree
 
 </dd>
+<dt id="ceil"><a name="ceil,RedBlackTree[T],T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">ceil</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+Returns the value in this tree that is equal to or just greater than the given value
+
+</dd>
+<dt id="floor"><a name="floor,RedBlackTree[T],T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">floor</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+Returns the value in this tree that is equal to or just less than the given value
+
+</dd>
 <dt id="validate"><a name="validate,RedBlackTree[T]"></a><pre><span class="Keyword">proc</span> <span class="Identifier">validate</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
 <dd>
 Raises an assertion exception if a red/black tree is corrupt. This is primarily for testing purposes and isn't something you should need to call from an application.
@@ -1290,7 +1304,7 @@ Iterates over each value in a tree in reverse order
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-06-04 19:06:47 UTC</small>
+        <small>Made with Nim. Generated: 2015-06-14 11:01:20 UTC</small>
       </div>
     </div>
   </div>
