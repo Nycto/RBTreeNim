@@ -47,10 +47,16 @@ proc `$` [T]( accum: var Rope, self: Node[T] ) =
             `$`(accum, self.right)
         accum.add(")")
 
+proc `$`[T]( node: Node[T] ): string =
+    ## Returns a node as a string
+    var accum = rope("")
+    `$`(accum, node)
+    return $accum
+
 proc `$`* [T]( self: RedBlackTree[T] ): string =
     ## Returns a tree as a string
     var accum = rope("RedBlackTree")
-    `$`(accum, self.root)
+    accum.add(`$`(self.root))
     return $accum
 
 proc find[T]( tree: RedBlackTree[T], value: T ): Node[T] =
