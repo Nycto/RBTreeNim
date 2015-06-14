@@ -423,6 +423,51 @@ proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
     tree.defineMinMax(right)
 
 
+
+template defineCeilFloor[T](
+    tree: RedBlackTree[T], value: T,
+    cmp: expr, overUnderBranch: expr, inRangeBranch: expr
+) =
+    ## Constructs the body of the `ceil` and `floor` functions
+
+    proc find[T](node: Node[T]): Node[T] =
+        ## Traverses the given node for the search value. This will return nil
+        ## if there isn't a value in this tree that matches the appropriate
+        ## constraints.
+
+        if node == nil:
+            return nil
+
+        let compared = tree.compare(node.value, value)
+
+        if compared == 0:
+            return node
+        elif `cmp`(compared, 0):
+            return find(node.`overUnderBranch`)
+
+        let branch = find(node.`inRangeBranch`)
+
+        if branch == nil or `cmp`(tree.compare(branch.value, value), 0):
+            return node
+        else:
+            return branch
+
+    let node = find[T](tree.root)
+    return if node == nil: None[T]() else: Some[T](node.value)
+
+proc ceil*[T]( tree: RedBlackTree[T], value: T ): Option[T] =
+    ## Returns the value in this tree that is equal to or just greater than
+    ## the given value
+    proc lessThan(a, b: int): bool {.inline.} = a < b
+    defineCeilFloor(tree, value, lessThan, right, left)
+
+proc floor*[T]( tree: RedBlackTree[T], value: T ): Option[T] =
+    ## Returns the value in this tree that is equal to or just less than
+    ## the given value
+    proc greaterThan(a, b: int): bool {.inline.} = a > b
+    defineCeilFloor(tree, value, greaterThan, left, right)
+
+
 proc validate[T]( node: Node[T] ): int =
     ## Raises an assertion exception if a node is corrupt. Returns the number
     ## of black nodes contained within this node (including this node)

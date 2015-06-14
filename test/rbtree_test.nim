@@ -251,6 +251,34 @@ suite "A Red/Black Tree should":
         tree.delete(3)
         require( tree == "RedBlackTree(B 2 (B 1) (B 4))" )
 
+    test "Calculate the ceil within a tree":
+        var tree = newRBTree[int]()
+        require( ceil[int](tree, 25) == None[int]() )
+
+        tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
+        require( ceil[int](tree, 40) == Some[int](40) )
+        require( ceil[int](tree, 50) == Some[int](50) )
+        require( ceil[int](tree, 65) == Some[int](70) )
+        require( ceil[int](tree, 0) == Some[int](10) )
+        require( ceil[int](tree, 54) == Some[int](55) )
+        require( ceil[int](tree, 56) == Some[int](57) )
+        require( ceil[int](tree, 59) == Some[int](60) )
+        require( ceil[int](tree, 90) == None[int]() )
+
+    test "Calculate the floor within a tree":
+        var tree = newRBTree[int]()
+        require( ceil[int](tree, 25) == None[int]() )
+
+        tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
+        require( floor[int](tree, 40) == Some[int](40) )
+        require( floor[int](tree, 50) == Some[int](50) )
+        require( floor[int](tree, 75) == Some[int](70) )
+        require( floor[int](tree, 90) == Some[int](80) )
+        require( floor[int](tree, 56) == Some[int](55) )
+        require( floor[int](tree, 58) == Some[int](57) )
+        require( floor[int](tree, 61) == Some[int](60) )
+        require( floor[int](tree, 5) == None[int]() )
+
     test "Maintain red/black rules through a large number of operations":
         runGauntlet("./test/10000_operations.txt")
 
