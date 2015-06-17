@@ -164,11 +164,15 @@ template rotate[T, K](
     else:
         grandparent.right = saved
 
-proc rotateLeft[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc rotateLeft[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Rotates a node to the left
     rotate(tree, node, left, right)
 
-proc rotateRight[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc rotateRight[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Rotates a node to the right
     rotate(tree, node, right, left)
 
@@ -200,7 +204,9 @@ proc sibling[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Returns the other child of the parent of this node
     if node.isOn(left): node.parent.right else: node.parent.left
 
-proc replace[T, K]( tree: var RedBlackTree[T, K], node, replacement: var Node[T] ) =
+proc replace[T, K](
+    tree: var RedBlackTree[T, K], node, replacement: var Node[T]
+) =
     ## Replaces a node with another node
     if node.parent == nil:
         tree.root = replacement
@@ -216,7 +222,9 @@ proc replace[T, K]( tree: var RedBlackTree[T, K], node, replacement: var Node[T]
 
 proc insertCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] )
 
-proc insertCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc insertCase5[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 5: The parent P is red but the uncle U is black, the current node N
     ## is the left child of P, and P is the left child of its parent G
     var grandparent = grandparent(node)
@@ -227,7 +235,9 @@ proc insertCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
     else:
         rotateLeft(tree, node.parent)
 
-proc insertCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc insertCase4[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 4: The parent P is red but the uncle U is black; also, the current
     ## node N is the right child of P, and P in turn is the left child of its
     ## parent G
@@ -240,7 +250,9 @@ proc insertCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
     else:
         insertCase5(tree, node)
 
-proc insertCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc insertCase3[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 3: If both the parent P and the uncle U are red, then both of them
     ## can be repainted black and the grandparent G becomes red (to maintain
     ## that all paths from any given node to its leaf nodes contain the same
@@ -255,7 +267,9 @@ proc insertCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
     else:
         insertCase4(tree, node)
 
-proc insertCase2[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc insertCase2[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 2: The current node's parent P is black, so both children of every
     ## red node are black
     if not node.parent.isBlack:
@@ -282,7 +296,9 @@ proc insert*[T, K]( self: var RedBlackTree[T, K], values: varargs[T] ) =
 
 proc deleteCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] )
 
-proc deleteCase6[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc deleteCase6[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 6: S is black, S's right child is red, and N is the left child of
     ## its parent P
     var sibling = node.sibling
@@ -297,7 +313,9 @@ proc deleteCase6[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
         sibling.left.color = black
         rotateRight(tree, sibling)
 
-proc deleteCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc deleteCase5[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 5: S is black, S's left child is red, S's right child is black, and
     ## N is the left child of its parent
     var sibling = node.sibling
@@ -312,7 +330,9 @@ proc deleteCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
             rotateLeft(tree, sibling.right)
     deleteCase6(tree, node)
 
-proc deleteCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc deleteCase4[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 4: S and S's children are black, but P is red
     var sibling = node.sibling
     if node.parent.isRed and sibling.isAllBlack:
@@ -321,7 +341,9 @@ proc deleteCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
     else:
         deleteCase5(tree, node)
 
-proc deleteCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc deleteCase3[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 3: P, S, and S's children are black
     var sibling = node.sibling
     if node.parent.isBlack and sibling.isAllBlack:
@@ -330,7 +352,9 @@ proc deleteCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inli
     else:
         deleteCase4(tree, node)
 
-proc deleteCase2[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
+proc deleteCase2[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T]
+) {.inline.} =
     ## Case 2: The sibling is red
 
     var sibling = node.sibling
