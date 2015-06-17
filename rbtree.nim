@@ -20,6 +20,8 @@ type
         value: T
 
     RedBlackTree*[T, K] = object ## A Red/Black tree
+        ## * `T` is the type of value being stored
+        ## * `K` is the type of key used to index those values
 
         # Extracts the key from value
         extract: proc (value: T): K
@@ -41,7 +43,7 @@ proc newRBTree*[T, K](
     RedBlackTree[T, K]( extract: extract, compare: compare, root: nil )
 
 proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T, T] =
-    ## Creates a new Red/Black tree
+    ## Creates a new Red/Black tree where the values are indexed by themselves
     ## * `compare` compares two values ala `cmp`
     newRBTree( proc (value: T): T = value, compare )
 
