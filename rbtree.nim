@@ -477,17 +477,17 @@ template defineCeilFloor[T, K](
     let node = walk(tree.root)
     return if node == nil: None[T]() else: Some[T](node.value)
 
-proc ceil*[T, K]( tree: RedBlackTree[T, K], value: T ): Option[T] =
+proc ceil*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than
     ## the given value
     proc lessThan(a, b: int): bool {.inline.} = a < b
-    defineCeilFloor(tree, value, lessThan, right, left)
+    defineCeilFloor(tree, key, lessThan, right, left)
 
-proc floor*[T, K]( tree: RedBlackTree[T, K], value: T ): Option[T] =
+proc floor*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just less than
     ## the given value
     proc greaterThan(a, b: int): bool {.inline.} = a > b
-    defineCeilFloor(tree, value, greaterThan, left, right)
+    defineCeilFloor(tree, key, greaterThan, left, right)
 
 
 proc validate[T]( node: Node[T] ): int =

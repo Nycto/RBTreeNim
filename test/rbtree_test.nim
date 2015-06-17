@@ -252,32 +252,42 @@ suite "A Red/Black Tree should":
         require( tree == "RedBlackTree(B 2 (B 1) (B 4))" )
 
     test "Calculate the ceil within a tree":
-        var tree = newRBTree[int]()
-        require( ceil(tree, 25) == None[int]() )
+        var tree = newRBTree[tuple[i: int], int](
+            proc (value: tuple[i: int]): int = value.i )
 
-        tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
-        require( ceil(tree, 40) == Some[int](40) )
-        require( ceil(tree, 50) == Some[int](50) )
-        require( ceil(tree, 65) == Some[int](70) )
-        require( ceil(tree, 0) == Some[int](10) )
-        require( ceil(tree, 54) == Some[int](55) )
-        require( ceil(tree, 56) == Some[int](57) )
-        require( ceil(tree, 59) == Some[int](60) )
-        require( ceil(tree, 90) == None[int]() )
+        require( ceil(tree, 25) == None[tuple[i: int]]() )
+
+        tree.insert(
+            (i: 10), (i: 20), (i: 30), (i: 40), (i: 50),
+            (i: 60), (i: 70), (i: 80), (i: 55), (i: 57))
+
+        require( ceil(tree, 40) == Some[tuple[i: int]]((i: 40)) )
+        require( ceil(tree, 50) == Some[tuple[i: int]]((i: 50)) )
+        require( ceil(tree, 65) == Some[tuple[i: int]]((i: 70)) )
+        require( ceil(tree, 0)  == Some[tuple[i: int]]((i: 10)) )
+        require( ceil(tree, 54) == Some[tuple[i: int]]((i: 55)) )
+        require( ceil(tree, 56) == Some[tuple[i: int]]((i: 57)) )
+        require( ceil(tree, 59) == Some[tuple[i: int]]((i: 60)) )
+        require( ceil(tree, 90) == None[tuple[i: int]]() )
 
     test "Calculate the floor within a tree":
-        var tree = newRBTree[int]()
-        require( ceil(tree, 25) == None[int]() )
+        var tree = newRBTree[tuple[i: int], int](
+            proc (value: tuple[i: int]): int = value.i )
 
-        tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
-        require( floor(tree, 40) == Some[int](40) )
-        require( floor(tree, 50) == Some[int](50) )
-        require( floor(tree, 75) == Some[int](70) )
-        require( floor(tree, 90) == Some[int](80) )
-        require( floor(tree, 56) == Some[int](55) )
-        require( floor(tree, 58) == Some[int](57) )
-        require( floor(tree, 61) == Some[int](60) )
-        require( floor(tree, 5) == None[int]() )
+        require( floor(tree, 25) == None[tuple[i: int]]() )
+
+        tree.insert(
+            (i: 10), (i: 20), (i: 30), (i: 40), (i: 50),
+            (i: 60), (i: 70), (i: 80), (i: 55), (i: 57))
+
+        require( floor(tree, 40) == Some[tuple[i: int]]((i: 40)) )
+        require( floor(tree, 50) == Some[tuple[i: int]]((i: 50)) )
+        require( floor(tree, 75) == Some[tuple[i: int]]((i: 70)) )
+        require( floor(tree, 90) == Some[tuple[i: int]]((i: 80)) )
+        require( floor(tree, 56) == Some[tuple[i: int]]((i: 55)) )
+        require( floor(tree, 58) == Some[tuple[i: int]]((i: 57)) )
+        require( floor(tree, 61) == Some[tuple[i: int]]((i: 60)) )
+        require( floor(tree, 5) == None[tuple[i: int]]() )
 
     test "Allow the extraction proc to be swapped out":
         var tree = newRBTree[tuple[x, y: int], int](
