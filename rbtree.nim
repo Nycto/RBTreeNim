@@ -19,17 +19,31 @@ type
         # The  value of this node
         value: T
 
-    RedBlackTree*[T] = object ## A Red/Black tree
+    RedBlackTree*[T, K] = object ## A Red/Black tree
 
-        compare: proc (a, b: T): int
+        # Extracts the key from value
+        extract: proc (value: T): K
+
+        # Compares two keys for equality
+        compare: proc (a, b: K): int
 
         # The root of the tree
         root: Node[T]
 
 
-proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T] =
-  ## Creates a new Red/Black tree
-  return RedBlackTree[T]( root: nil, compare: compare )
+proc newRBTree*[T, K](
+    extract: proc (value: T): K,
+    compare: proc (a, b: K): int = cmp
+): RedBlackTree[T, K] =
+    ## Creates a new Red/Black tree.
+    ## * `extract` is a function that pulls the comparison key out of a value
+    ## * `compare` compares two keys ala `cmp`
+    RedBlackTree[T, K]( extract: extract, compare: compare, root: nil )
+
+proc newRBTree*[T]( compare: proc (a, b: T): int = cmp ): RedBlackTree[T, T] =
+    ## Creates a new Red/Black tree
+    ## * `compare` compares two values ala `cmp`
+    newRBTree( proc (value: T): T = value, compare )
 
 proc `$` [T]( accum: var Rope, self: Node[T] ) =
     ## Converts a node to a string
@@ -53,19 +67,20 @@ proc `$`[T]( node: Node[T] ): string =
     `$`(accum, node)
     return $accum
 
-proc `$`* [T]( self: RedBlackTree[T] ): string =
+proc `$`* [T, K]( self: RedBlackTree[T, K] ): string =
     ## Returns a tree as a string
     var accum = rope("RedBlackTree")
     accum.add(`$`(self.root))
     return $accum
 
-proc find[T]( tree: RedBlackTree[T], value: T ): Node[T] =
+proc find[T, K]( tree: RedBlackTree[T, K], key: K ): Node[T] =
     ## Find a value in the tree and returns the containing node. Or nil
     var examine = tree.root
     while examine != nil:
-        if examine.value == value:
+        let nodeKey = tree.extract(examine.value)
+        if nodeKey == key:
             return examine
-        elif tree.compare(value, examine.value) <= 0:
+        elif tree.compare(key, nodeKey) <= 0:
             examine = examine.left
         else:
             examine = examine.right
@@ -77,22 +92,22 @@ proc newNode[T]( value: T, parent: Node[T] = nil ): Node[T] {.inline.} =
     return Node[T](
         left: nil, right: nil, parent: parent, color: red, value: value )
 
-proc insert[T](
-    self: var Node[T], compare: proc(a, b: T): int, value: T
+proc insert[T, K](
+    tree: RedBlackTree[T, K], self: var Node[T], value: T
 ): Node[T] =
     ## Does a basic binary search tree insert, returning the new node
-    if compare(value, self.value) < 0:
+    if tree.compare(tree.extract(value), tree.extract(self.value)) < 0:
         if self.left == nil:
             result = newNode( value, self )
             self.left = result
         else:
-            result = insert(self.left, compare, value)
+            result = insert(tree, self.left, value)
     else:
         if self.right == nil:
             result = newNode( value, self )
             self.right = result
         else:
-            result = insert(self.right, compare, value)
+            result = insert(tree, self.right, value)
 
 proc grandparent[T](node: var Node[T]): Node[T] {.inline.} =
     ## Returns the grandparent of a node; the parent of a parent
@@ -112,8 +127,8 @@ proc uncle[T](node: var Node[T]): Node[T] {.inline.} =
         return grandparent.left
 
 
-template rotate[T](
-    tree: var RedBlackTree[T], node: var Node[T],
+template rotate[T, K](
+    tree: var RedBlackTree[T, K], node: var Node[T],
     direction: expr, opposite: expr
 ) =
     ## Rotates a node into its parents position
@@ -149,11 +164,11 @@ template rotate[T](
     else:
         grandparent.right = saved
 
-proc rotateLeft[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc rotateLeft[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Rotates a node to the left
     rotate(tree, node, left, right)
 
-proc rotateRight[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc rotateRight[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Rotates a node to the right
     rotate(tree, node, right, left)
 
@@ -185,7 +200,7 @@ proc sibling[T]( node: Node[T] ): Node[T] {.inline.} =
     ## Returns the other child of the parent of this node
     if node.isOn(left): node.parent.right else: node.parent.left
 
-proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
+proc replace[T, K]( tree: var RedBlackTree[T, K], node, replacement: var Node[T] ) =
     ## Replaces a node with another node
     if node.parent == nil:
         tree.root = replacement
@@ -199,9 +214,9 @@ proc replace[T]( tree: var RedBlackTree[T], node, replacement: var Node[T] ) =
         replacement.parent = node.parent
 
 
-proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
+proc insertCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] )
 
-proc insertCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc insertCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 5: The parent P is red but the uncle U is black, the current node N
     ## is the left child of P, and P is the left child of its parent G
     var grandparent = grandparent(node)
@@ -212,7 +227,7 @@ proc insertCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         rotateLeft(tree, node.parent)
 
-proc insertCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc insertCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 4: The parent P is red but the uncle U is black; also, the current
     ## node N is the right child of P, and P in turn is the left child of its
     ## parent G
@@ -225,7 +240,7 @@ proc insertCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         insertCase5(tree, node)
 
-proc insertCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc insertCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 3: If both the parent P and the uncle U are red, then both of them
     ## can be repainted black and the grandparent G becomes red (to maintain
     ## that all paths from any given node to its leaf nodes contain the same
@@ -240,13 +255,13 @@ proc insertCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         insertCase4(tree, node)
 
-proc insertCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc insertCase2[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 2: The current node's parent P is black, so both children of every
     ## red node are black
     if not node.parent.isBlack:
         insertCase3(tree, node)
 
-proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
+proc insertCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) =
     ## Case 1: The current node N is at the root of the tree
     if node.parent == nil:
         node.color = black
@@ -254,20 +269,20 @@ proc insertCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
         insertCase2(tree, node)
 
 
-proc insert*[T]( self: var RedBlackTree[T], values: varargs[T] ) =
+proc insert*[T, K]( self: var RedBlackTree[T, K], values: varargs[T] ) =
     ## Adds a value to this tree
     for value in values:
         if self.root == nil:
             self.root = newNode(value)
             insertCase1(self, self.root)
         else:
-            var inserted = insert[T](self.root, self.compare, value)
+            var inserted = insert(self, self.root, value)
             insertCase1(self, inserted)
 
 
-proc deleteCase1[T]( tree: var RedBlackTree[T], node: var Node[T] )
+proc deleteCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] )
 
-proc deleteCase6[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc deleteCase6[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 6: S is black, S's right child is red, and N is the left child of
     ## its parent P
     var sibling = node.sibling
@@ -282,7 +297,7 @@ proc deleteCase6[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
         sibling.left.color = black
         rotateRight(tree, sibling)
 
-proc deleteCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc deleteCase5[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 5: S is black, S's left child is red, S's right child is black, and
     ## N is the left child of its parent
     var sibling = node.sibling
@@ -297,7 +312,7 @@ proc deleteCase5[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
             rotateLeft(tree, sibling.right)
     deleteCase6(tree, node)
 
-proc deleteCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc deleteCase4[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 4: S and S's children are black, but P is red
     var sibling = node.sibling
     if node.parent.isRed and sibling.isAllBlack:
@@ -306,7 +321,7 @@ proc deleteCase4[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         deleteCase5(tree, node)
 
-proc deleteCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc deleteCase3[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 3: P, S, and S's children are black
     var sibling = node.sibling
     if node.parent.isBlack and sibling.isAllBlack:
@@ -315,7 +330,7 @@ proc deleteCase3[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
     else:
         deleteCase4(tree, node)
 
-proc deleteCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
+proc deleteCase2[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) {.inline.} =
     ## Case 2: The sibling is red
 
     var sibling = node.sibling
@@ -330,7 +345,7 @@ proc deleteCase2[T]( tree: var RedBlackTree[T], node: var Node[T] ) {.inline.} =
 
     deleteCase3(tree, node)
 
-proc deleteCase1[T]( tree: var RedBlackTree[T], node: var Node[T] ) =
+proc deleteCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) =
     ## Case 1: N is the new root
     if node.parent != nil:
         deleteCase2(tree, node)
@@ -349,7 +364,7 @@ proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     else:
         return node.left.far(right)
 
-proc delete*[T]( self: var RedBlackTree[T], value: T ) =
+proc delete*[T, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Deletes a value from the tree
 
     # Find the value we are being asked to delete
@@ -379,7 +394,7 @@ proc delete*[T]( self: var RedBlackTree[T], value: T ) =
         self.root.color = black
 
 
-template defineIter[T]( tree: RedBlackTree[T], low: expr, high: expr ) =
+template defineIter[T, K]( tree: RedBlackTree[T, K], low: expr, high: expr ) =
     ## Defines the content of the `items` and `reversed` iterators
 
     var current = far(tree.root, low)
@@ -393,44 +408,44 @@ template defineIter[T]( tree: RedBlackTree[T], low: expr, high: expr ) =
                 current = current.parent
             current = current.parent
 
-iterator items*[T]( tree: RedBlackTree[T] ): T =
+iterator items*[T, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree
     defineIter(tree, left, right)
 
-iterator reversed*[T]( tree: RedBlackTree[T] ): T =
+iterator reversed*[T, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree in reverse order
     defineIter(tree, right, left)
 
 
-proc contains*[T]( tree: RedBlackTree[T], value: T ): bool =
+proc contains*[T, K]( tree: RedBlackTree[T, K], value: T ): bool =
     ## Returns whether this tree contains the specific element
-    return find(tree, value) != nil
+    return find(tree, tree.extract(value)) != nil
 
 
-template defineMinMax[T]( tree: RedBlackTree[T], direction: expr ) =
+template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =
     ## Defines the content of the min and max functions
     if tree.root == nil:
         return None[T]()
     else:
         return Some[T]( far(tree.root, direction).value )
 
-proc min*[T]( tree: RedBlackTree[T] ): Option[T] =
+proc min*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(left)
 
-proc max*[T]( tree: RedBlackTree[T] ): Option[T] =
+proc max*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(right)
 
 
 
-template defineCeilFloor[T](
-    tree: RedBlackTree[T], value: T,
+template defineCeilFloor[T, K](
+    tree: RedBlackTree[T, K], key: K,
     cmp: expr, overUnderBranch: expr, inRangeBranch: expr
 ) =
     ## Constructs the body of the `ceil` and `floor` functions
 
-    proc find[T](node: Node[T]): Node[T] =
+    proc walk(node: Node[T]): Node[T] =
         ## Traverses the given node for the search value. This will return nil
         ## if there isn't a value in this tree that matches the appropriate
         ## constraints.
@@ -438,30 +453,32 @@ template defineCeilFloor[T](
         if node == nil:
             return nil
 
-        let compared = tree.compare(node.value, value)
+        let compared = tree.compare(tree.extract(node.value), key)
 
         if compared == 0:
             return node
         elif `cmp`(compared, 0):
-            return find(node.`overUnderBranch`)
+            return walk(node.`overUnderBranch`)
 
-        let branch = find(node.`inRangeBranch`)
+        let branch = walk(node.`inRangeBranch`)
 
-        if branch == nil or `cmp`(tree.compare(branch.value, value), 0):
+        if branch == nil:
+            return node
+        elif `cmp`(tree.compare(tree.extract(branch.value), key), 0):
             return node
         else:
             return branch
 
-    let node = find[T](tree.root)
+    let node = walk(tree.root)
     return if node == nil: None[T]() else: Some[T](node.value)
 
-proc ceil*[T]( tree: RedBlackTree[T], value: T ): Option[T] =
+proc ceil*[T, K]( tree: RedBlackTree[T, K], value: T ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than
     ## the given value
     proc lessThan(a, b: int): bool {.inline.} = a < b
     defineCeilFloor(tree, value, lessThan, right, left)
 
-proc floor*[T]( tree: RedBlackTree[T], value: T ): Option[T] =
+proc floor*[T, K]( tree: RedBlackTree[T, K], value: T ): Option[T] =
     ## Returns the value in this tree that is equal to or just less than
     ## the given value
     proc greaterThan(a, b: int): bool {.inline.} = a > b
@@ -516,7 +533,7 @@ proc validate[T]( node: Node[T] ): int =
     # return the total number of black nodes
     return leftHeight + (if node.isRed: 0 else: 1)
 
-proc validate*[T]( tree: RedBlackTree[T] ) =
+proc validate*[T, K]( tree: RedBlackTree[T, K] ) =
     ## Raises an assertion exception if a red/black tree is corrupt. This is
     ## primarily for testing purposes and isn't something you should need to
     ## call from an application.

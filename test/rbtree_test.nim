@@ -2,7 +2,7 @@ import unittest, rbtree, sequtils, strutils, optional_t
 
 abortOnError = true
 
-proc `==`[T]( actual: RedBlackTree[T], expected: string ): bool =
+proc `==`[T, K]( actual: RedBlackTree[T, K], expected: string ): bool =
     ## Compares a tree to an expected serialized version
     let actualStr = $actual
     checkpoint("Expecting: " & expected)
@@ -253,32 +253,42 @@ suite "A Red/Black Tree should":
 
     test "Calculate the ceil within a tree":
         var tree = newRBTree[int]()
-        require( ceil[int](tree, 25) == None[int]() )
+        require( ceil(tree, 25) == None[int]() )
 
         tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
-        require( ceil[int](tree, 40) == Some[int](40) )
-        require( ceil[int](tree, 50) == Some[int](50) )
-        require( ceil[int](tree, 65) == Some[int](70) )
-        require( ceil[int](tree, 0) == Some[int](10) )
-        require( ceil[int](tree, 54) == Some[int](55) )
-        require( ceil[int](tree, 56) == Some[int](57) )
-        require( ceil[int](tree, 59) == Some[int](60) )
-        require( ceil[int](tree, 90) == None[int]() )
+        require( ceil(tree, 40) == Some[int](40) )
+        require( ceil(tree, 50) == Some[int](50) )
+        require( ceil(tree, 65) == Some[int](70) )
+        require( ceil(tree, 0) == Some[int](10) )
+        require( ceil(tree, 54) == Some[int](55) )
+        require( ceil(tree, 56) == Some[int](57) )
+        require( ceil(tree, 59) == Some[int](60) )
+        require( ceil(tree, 90) == None[int]() )
 
     test "Calculate the floor within a tree":
         var tree = newRBTree[int]()
-        require( ceil[int](tree, 25) == None[int]() )
+        require( ceil(tree, 25) == None[int]() )
 
         tree.insert(10, 20, 30, 40, 50, 60, 70, 80, 55, 57)
-        require( floor[int](tree, 40) == Some[int](40) )
-        require( floor[int](tree, 50) == Some[int](50) )
-        require( floor[int](tree, 75) == Some[int](70) )
-        require( floor[int](tree, 90) == Some[int](80) )
-        require( floor[int](tree, 56) == Some[int](55) )
-        require( floor[int](tree, 58) == Some[int](57) )
-        require( floor[int](tree, 61) == Some[int](60) )
-        require( floor[int](tree, 5) == None[int]() )
+        require( floor(tree, 40) == Some[int](40) )
+        require( floor(tree, 50) == Some[int](50) )
+        require( floor(tree, 75) == Some[int](70) )
+        require( floor(tree, 90) == Some[int](80) )
+        require( floor(tree, 56) == Some[int](55) )
+        require( floor(tree, 58) == Some[int](57) )
+        require( floor(tree, 61) == Some[int](60) )
+        require( floor(tree, 5) == None[int]() )
 
-    test "Maintain red/black rules through a large number of operations":
+    test "Allow the extraction proc to be swapped out":
+        var tree = newRBTree[tuple[x, y: int], int](
+            proc (value: tuple[x, y: int]): int = value.x )
+
+        tree.insert( (x: 50, y: 4), (x: 30, y: 5), (x: 40, y: 90) )
+
+        require( contains(tree, (x: 50, y: 4)) )
+        require( contains(tree, (x: 50, y: 80)) )
+        require( not contains(tree, (x: 0, y: 80)) )
+
+    test "Maintain red/black rules through a large number of ops":
         runGauntlet("./test/10000_operations.txt")
 
