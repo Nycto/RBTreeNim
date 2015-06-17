@@ -73,7 +73,7 @@ proc `$`* [T, K]( self: RedBlackTree[T, K] ): string =
     accum.add(`$`(self.root))
     return $accum
 
-proc find[T, K]( tree: RedBlackTree[T, K], key: K ): Node[T] =
+proc search[T, K]( tree: RedBlackTree[T, K], key: K ): Node[T] =
     ## Find a value in the tree and returns the containing node. Or nil
     var examine = tree.root
     while examine != nil:
@@ -368,7 +368,7 @@ proc delete*[T, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Deletes a value from the tree
 
     # Find the value we are being asked to delete
-    var toDelete = find(self, value)
+    var toDelete = search(self, value)
     if toDelete == nil:
         return
 
@@ -419,7 +419,12 @@ iterator reversed*[T, K]( tree: RedBlackTree[T, K] ): T =
 
 proc contains*[T, K]( tree: RedBlackTree[T, K], value: T ): bool =
     ## Returns whether this tree contains the specific element
-    return find(tree, tree.extract(value)) != nil
+    return search(tree, tree.extract(value)) != nil
+
+proc find*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+    ## Searches for a value by its key
+    let found = search(tree, key)
+    return if found == nil: None[T]() else: Some[T](found.value)
 
 
 template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =

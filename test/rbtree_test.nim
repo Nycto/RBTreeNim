@@ -289,6 +289,18 @@ suite "A Red/Black Tree should":
         require( contains(tree, (x: 50, y: 80)) )
         require( not contains(tree, (x: 0, y: 80)) )
 
+    test "Find should return a value from a key":
+        var tree = newRBTree[tuple[x, y: int], int](
+            proc (value: tuple[x, y: int]): int = value.x )
+
+        tree.insert( (x: 50, y: 4), (x: 30, y: 5), (x: 40, y: 90) )
+
+        require( tree.find(50) == Some((x: 50, y: 4)) )
+        require( tree.find(30) == Some((x: 30, y: 5)) )
+        require( tree.find(40) == Some((x: 40, y: 90)) )
+        require( tree.find(0) == None[tuple[x, y: int]]() )
+        require( tree.find(90) == None[tuple[x, y: int]]() )
+
     test "Maintain red/black rules through a large number of ops":
         runGauntlet("./test/10000_operations.txt")
 
