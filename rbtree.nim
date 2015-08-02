@@ -516,6 +516,11 @@ proc floor*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     defineCeilFloor(tree, key, greaterThan, left, right)
 
 
+proc isEmpty*[T, K]( tree: RedBlackTree[T, K] ): bool =
+    ## Returns whether this tree is empty of any nodes
+    return tree.root == nil
+
+
 proc validate[T]( node: Node[T] ): int =
     ## Raises an assertion exception if a node is corrupt. Returns the number
     ## of black nodes contained within this node (including this node)

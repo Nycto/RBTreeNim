@@ -289,6 +289,20 @@ suite "A Red/Black Tree should":
         require( floor(tree, 61) == Some[tuple[i: int]]((i: 60)) )
         require( floor(tree, 5) == None[tuple[i: int]]() )
 
+    test "Return whether a tree is empty":
+        var tree = newRBTree[int]()
+        require( tree.isEmpty )
+
+        tree.insert(1)
+        require( not tree.isEmpty )
+
+        tree.insert(2)
+        require( not tree.isEmpty )
+
+        tree.delete(1)
+        tree.delete(2)
+        require( tree.isEmpty )
+
     test "Allow the extraction proc to be swapped out":
         var tree = newRBTree[tuple[x, y: int], int](
             proc (value: tuple[x, y: int]): int = value.x )
