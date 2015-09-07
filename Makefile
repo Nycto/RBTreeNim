@@ -73,7 +73,7 @@ build/readme_%: README.md
 	@echo "$$EXTRACT_README_CODE" > build/extract_readme_code.nim
 	$(call COMPILE,build/extract_readme_code.nim)
 	@build/extract_readme_code
-	ls build/readme_*.nim | xargs -n1 nim check --path:. --verbosity:0
+	ls build/readme_*.nim | xargs -n1 nim c -r --path:. --verbosity:0
 
 
 # Watches for changes and reruns
