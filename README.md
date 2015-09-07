@@ -20,8 +20,12 @@ A Quick Tour
 ```nimrod
 import rbtree
 
+proc extract( value: int ): int =
+    ## The extract function is used to pull the key from the object being stored
+    value
+
 # Create a new tree
-var tree = newRBTree[int]()
+var tree = newRBTree[int, int]()
 
 # Insert 4 values into the tree. Insert accepts 1 or more arguments to insert
 tree.insert(2, 3, 1, 0)
@@ -42,22 +46,31 @@ for i in reversed(tree):
     echo i
 ```
 
-Custom Comparators
-------------------
+Multiple Indexes
+----------------
 
-When instantiating a tree, you can define a custom compare proc. This allows
-you to store arbitrary structures in the tree.
+Sometimes you will want to index the same object in different ways. However,
+this library uses compile time references to hook in the `extract` and `cmp`
+methods. To get around this, you can define a custom `distinct` type that
+will allow you to dispatch to different `extract` and `cmp` implementations.
 
 ```nimrod
 import rbtree
 
-# Store points in a tree, but index them only by the `x` value
-var tree = newRBTree[tuple[x, y: int]]() do (a, b: tuple[x, y: int]) -> int:
-    return a.x - b.x
+defineIndex(XIndex, tuple[x, y: int], it.x, cmp(a, b))
+defineIndex(YIndex, tuple[x, y: int], it.y, cmp(a, b))
 
-tree.insert( (x: 5, y: 2), (x: 3, y: 8), (x: 10, y: 0) )
+var xIndex = newRBTree[XIndex, int]()
+var yIndex = newRBTree[YIndex, int]()
 
-echo tree
+let point1 = (x: 234, y: 789)
+let point2 = (x: 890, y: 123)
+
+xIndex.insert(point1, point2)
+yIndex.insert(point1, point2)
+
+echo xIndex
+echo yIndex
 ```
 
 License
