@@ -10,16 +10,11 @@ proc `==`[T, K]( actual: RedBlackTree[T, K], expected: string ): bool =
     validate(actual)
     actualStr == expected
 
-proc extract( value: int ): int = value
-    ## Identity extractor for an int
-
 proc extract( value: tuple[i: int] ): int = value.i
     ## Simple tuple extractor
 
 proc extract( value: tuple[x, y: int] ): int = value.x
     ## Index a point by the x value
-
-defineIndex(ModuloInt, int, it, (a mod 5) - (b mod 5))
 
 proc compareTails( expect: string, drop: int, versus: string ): bool =
     ## Returns whether two strings end with the same value
@@ -138,12 +133,6 @@ suite "A Red/Black Tree should":
         tree.insert(16,19,11,7,5,4,2,15,20,3,6,8,13,14,1,12,18,17,10,9)
         let asSeq = toSeq(reversed(tree))
         require(asSeq == @[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1])
-
-    test "Custom sorting":
-        var tree = newRBTree[ModuloInt, ModuloInt]()
-        tree.insert(4, 10, 7, 16, 13, 8)
-        let asSeq: seq[int] = toSeq(items(tree)).mapIt(int, int(it))
-        require(asSeq == @[ 10, 16, 7, 13, 8, 4 ])
 
     test "Return whether an item is included":
         var tree = newRBTree[int, int]()

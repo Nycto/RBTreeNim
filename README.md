@@ -20,10 +20,6 @@ A Quick Tour
 ```nimrod
 import rbtree
 
-proc extract( value: int ): int =
-    ## The extract function is used to pull the key from the object being stored
-    value
-
 # Create a new tree
 var tree = newRBTree[int, int]()
 

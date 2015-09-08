@@ -8,12 +8,6 @@ type
     Color = enum ## The color of a node
         red, black
 
-    Key* = concept k ## Describes a key used to index the values in a tree
-        cmp(k, k) is float|int
-
-    Value* = concept v ## The values being stored in a tree
-        extract(v) is Key
-
     Node[T] = ref object ## A node within a red/black tree
 
         # The (potential) connections in this node
@@ -37,7 +31,7 @@ template defineIndex*(
     name: typedesc, source: typedesc,
     extractIt: expr, cmpAB: expr
 ) {.immediate.} =
-    ## Defines a distinct type with a custom extract and cmp methods. This
+    ## Defines a distinct type with a custom extract and methods. This
     ## makes it easy to index the same data in different ways.
 
     type name* {.borrow: `.`.} = distinct source
@@ -46,7 +40,7 @@ template defineIndex*(
 
     converter convert*( i: source ): name = name(i)
 
-    proc cmp*( arg1, arg2: name ): int =
+    proc compare*( arg1, arg2: name ): int =
         let a {.inject.} = arg1
         let b {.inject.} = arg2
         return cmpAB
@@ -57,7 +51,7 @@ template defineIndex*(
 
     # Converters don't work with `varargs`, so define a custom insert that
     # makes it easier to add multiple values of the custom type
-    proc insert*[K: Key](
+    proc insert*[K](
         self: var RedBlackTree[name, K],
         one: source, two: source,
         more: varargs[source]
@@ -68,10 +62,8 @@ template defineIndex*(
             insert[name, K](self, val)
 
 
-proc newRBTree*[T: Value, K: Key](): RedBlackTree[T, K] =
-    ## Creates a new Red/Black tree.
-    ## * `extract` is a function that pulls the comparison key out of a value
-    ## * `compare` compares two keys ala `cmp`
+proc newRBTree*[T, K](): RedBlackTree[T, K] =
+    ## Creates a new Red/Black tree
     RedBlackTree[T, K]( root: nil )
 
 proc `$` [T]( accum: var Rope, self: Node[T] ) =
@@ -96,20 +88,36 @@ proc `$`[T]( node: Node[T] ): string =
     `$`(accum, node)
     return $accum
 
-proc `$`* [T: Value, K: Key]( self: RedBlackTree[T, K] ): string =
+proc `$`* [T, K]( self: RedBlackTree[T, K] ): string =
     ## Returns a tree as a string
     var accum = rope("RedBlackTree")
     accum.add(`$`(self.root))
     return $accum
 
+
+template getKey( typeT, typeK: typedesc, value: expr ): expr =
+    ## Extracts the key from the given value. This is smart enough to not call
+    ## `extract` a value is both the key and value
+    when typeK is typeT and not compiles(value.extract):
+        typeK(value)
+    else:
+        value.extract
+
+template compareKeys( a, b: expr ): int =
+    # Compares two keys
+    when not compiles(a.compare(b) is int) and compiles(a.cmp(b)):
+        a.cmp(b)
+    else:
+        a.compare(b)
+
 proc search[T, K]( tree: RedBlackTree[T, K], key: K ): Node[T] =
     ## Find a value in the tree and returns the containing node. Or nil
     var examine = tree.root
     while examine != nil:
-        let nodeKey = examine.value.extract
+        let nodeKey = getKey(T, K, examine.value)
         if nodeKey == key:
             return examine
-        elif key.cmp(nodeKey) <= 0:
+        elif compareKeys(key, nodeKey) <= 0:
             examine = examine.left
         else:
             examine = examine.right
@@ -125,7 +133,7 @@ proc insert[T, K](
     tree: RedBlackTree[T, K], self: var Node[T], value: T
 ): Node[T] =
     ## Does a basic binary search tree insert, returning the new node
-    if value.extract.cmp(self.value.extract) < 0:
+    if compareKeys(getKey(T, K, value), getKey(T, K, self.value)) < 0:
         if self.left == nil:
             result = newNode( value, self )
             self.left = result
@@ -312,7 +320,7 @@ proc insertCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) =
         insertCase2(tree, node)
 
 
-proc insert*[T: Value, K: Key]( self: var RedBlackTree[T, K], value: T ) =
+proc insert*[T, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Adds a value to this tree
     if self.root == nil:
         self.root = newNode(value)
@@ -321,7 +329,7 @@ proc insert*[T: Value, K: Key]( self: var RedBlackTree[T, K], value: T ) =
         var inserted = insert(self, self.root, value)
         insertCase1(self, inserted)
 
-proc insert*[T: Value, K: Key](
+proc insert*[T, K](
     self: var RedBlackTree[T, K], one: T, two: T, more: varargs[T]
 ) =
     ## Adds multiple values to this tree
@@ -425,7 +433,7 @@ proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     else:
         return node.left.far(right)
 
-proc delete*[T: Value, K: Key]( self: var RedBlackTree[T, K], value: T ) =
+proc delete*[T, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Deletes a value from the tree
 
     # Find the value we are being asked to delete
@@ -469,20 +477,20 @@ template defineIter[T, K]( tree: RedBlackTree[T, K], low: expr, high: expr ) =
                 current = current.parent
             current = current.parent
 
-iterator items*[T: Value, K: Key]( tree: RedBlackTree[T, K] ): T =
+iterator items*[T, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree
     defineIter(tree, left, right)
 
-iterator reversed*[T: Value, K: Key]( tree: RedBlackTree[T, K] ): T =
+iterator reversed*[T, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree in reverse order
     defineIter(tree, right, left)
 
 
-proc contains*[T: Value, K: Key]( tree: RedBlackTree[T, K], value: T ): bool =
+proc contains*[T, K]( tree: RedBlackTree[T, K], value: T ): bool =
     ## Returns whether this tree contains the specific element
-    return search(tree, value.extract) != nil
+    return search(tree, getKey(T, K, value)) != nil
 
-proc find*[T: Value, K: Key]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc find*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Searches for a value by its key
     let found = search(tree, key)
     return if found == nil: None[T]() else: Some[T](found.value)
@@ -495,11 +503,11 @@ template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =
     else:
         return Some[T]( far(tree.root, direction).value )
 
-proc min*[T: Value, K: Key]( tree: RedBlackTree[T, K] ): Option[T] =
+proc min*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(left)
 
-proc max*[T: Value, K: Key]( tree: RedBlackTree[T, K] ): Option[T] =
+proc max*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(right)
 
@@ -519,7 +527,7 @@ template defineCeilFloor[T, K](
         if node == nil:
             return nil
 
-        let compared = node.value.extract.cmp(key)
+        let compared = compareKeys(getKey(T, K, node.value), key)
 
         if compared == 0:
             return node
@@ -530,7 +538,7 @@ template defineCeilFloor[T, K](
 
         if branch == nil:
             return node
-        elif `compare`(branch.value.extract.cmp(key), 0):
+        elif `compare`(compareKeys(getKey(T, K, branch.value), key), 0):
             return node
         else:
             return branch
@@ -538,20 +546,20 @@ template defineCeilFloor[T, K](
     let node = walk(tree.root)
     return if node == nil: None[T]() else: Some[T](node.value)
 
-proc ceil*[T: Value, K: Key]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc ceil*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than
     ## the given value
     proc lessThan(a, b: int): bool {.inline.} = a < b
     defineCeilFloor(tree, key, lessThan, right, left)
 
-proc floor*[T: Value, K: Key]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc floor*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just less than
     ## the given value
     proc greaterThan(a, b: int): bool {.inline.} = a > b
     defineCeilFloor(tree, key, greaterThan, left, right)
 
 
-proc isEmpty*[T: Value, K: Key]( tree: RedBlackTree[T, K] ): bool =
+proc isEmpty*[T, K]( tree: RedBlackTree[T, K] ): bool =
     ## Returns whether this tree is empty of any nodes
     return tree.root == nil
 
@@ -604,7 +612,7 @@ proc validate[T]( node: Node[T] ): int =
     # return the total number of black nodes
     return leftHeight + (if node.isRed: 0 else: 1)
 
-proc validate*[T: Value, K: Key]( tree: RedBlackTree[T, K] ) =
+proc validate*[T, K]( tree: RedBlackTree[T, K] ) =
     ## Raises an assertion exception if a red/black tree is corrupt. This is
     ## primarily for testing purposes and isn't something you should need to
     ## call from an application.
