@@ -155,6 +155,7 @@ suite "A Red/Black Tree should":
         require( tree.contains(40) )
         require( tree.contains((x: 40, y: 90)) )
 
+        require( not tree.contains((x: 40, y: 30)) )
         require( not tree.contains(20) )
 
     test "Return the minimum value in a true":
@@ -313,15 +314,6 @@ suite "A Red/Black Tree should":
         tree.delete(1)
         tree.delete(2)
         require( tree.isEmpty )
-
-    test "Allow the extraction proc to be swapped out":
-        var tree = newRBTree[tuple[x, y: int], int]()
-
-        tree.insert( (x: 50, y: 4), (x: 30, y: 5), (x: 40, y: 90) )
-
-        require( contains(tree, (x: 50, y: 4)) )
-        require( contains(tree, (x: 50, y: 80)) )
-        require( not contains(tree, (x: 0, y: 80)) )
 
     test "Find should return a value from a key":
         var tree = newRBTree[tuple[x, y: int], int]()

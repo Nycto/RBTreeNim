@@ -488,8 +488,11 @@ iterator reversed*[T, K]( tree: RedBlackTree[T, K] ): T =
 
 proc contains*[T, K]( tree: RedBlackTree[T, K], value: T|K ): bool =
     ## Returns whether this tree contains the specific value or key
-    let key = when value is T: getKey(T, K, value) else: value
-    return search(tree, key) != nil
+    when value is K:
+        return search(tree, value) != nil
+    else:
+        let found = search(tree, getKey(T, K, value))
+        return found != nil and found.value == value
 
 proc find*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Searches for a value by its key
