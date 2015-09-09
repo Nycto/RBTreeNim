@@ -1181,8 +1181,8 @@ dt pre > span.Operator ~ span.Identifier, dt pre > span.Operator ~ span.Operator
     title="insert*[T, K](self: var RedBlackTree[T, K]; one: T; two: T; more: varargs[T])"><wbr />insert</a></li>
   <li><a class="reference" href="#delete,RedBlackTree[T,K],T"
     title="delete*[T, K](self: var RedBlackTree[T, K]; value: T)"><wbr />delete</a></li>
-  <li><a class="reference" href="#contains,RedBlackTree[T,K],T"
-    title="contains*[T, K](tree: RedBlackTree[T, K]; value: T): bool"><wbr />contains</a></li>
+  <li><a class="reference" href="#contains,RedBlackTree[T,K],"
+    title="contains*[T, K](tree: RedBlackTree[T, K]; value: T | K): bool"><wbr />contains</a></li>
   <li><a class="reference" href="#find,RedBlackTree[T,K],K"
     title="find*[T, K](tree: RedBlackTree[T, K]; key: K): Option[T]"><wbr />find</a></li>
   <li><a class="reference" href="#min,RedBlackTree[T,K]"
@@ -1273,9 +1273,9 @@ Adds multiple values to this tree
 Deletes a value from the tree
 
 </dd>
-<dt id="contains"><a name="contains,RedBlackTree[T,K],T"></a><pre><span class="Keyword">proc</span> <span class="Identifier">contains</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<dt id="contains"><a name="contains,RedBlackTree[T,K],"></a><pre><span class="Keyword">proc</span> <span class="Identifier">contains</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Operator">|</span> <span class="Identifier">K</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
 <dd>
-Returns whether this tree contains the specific element
+Returns whether this tree contains the specific value or key
 
 </dd>
 <dt id="find"><a name="find,RedBlackTree[T,K],K"></a><pre><span class="Keyword">proc</span> <span class="Identifier">find</span><span class="Operator">*</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">tree</span><span class="Other">:</span> <span class="Identifier">RedBlackTree</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">,</span> <span class="Identifier">K</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">K</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
@@ -1336,7 +1336,12 @@ Iterates over each value in a tree in reverse order
 <dt id="defineIndex"><a name="defineIndex.t,typedesc,typedesc,expr,expr"></a><pre><span class="Keyword">template</span> <span class="Identifier">defineIndex</span><span class="Operator">*</span><span class="Other">(</span><span class="Identifier">name</span><span class="Other">:</span> <span class="Identifier">typedesc</span><span class="Other">;</span> <span class="Identifier">source</span><span class="Other">:</span> <span class="Identifier">typedesc</span><span class="Other">;</span> <span class="Identifier">extractIt</span><span class="Other">:</span> <span class="Identifier">expr</span><span class="Other">;</span> <span class="Identifier">cmpAB</span><span class="Other">:</span> <span class="Identifier">expr</span><span class="Other">)</span> <span class="Other">{.</span>
     <span class="Identifier">immediate</span><span class="Other">.}</span></pre></dt>
 <dd>
-Defines a distinct type with a custom extract and methods. This makes it easy to index the same data in different ways.
+Defines a distinct type with custom extract and cmp methods. This makes it easy to index the same data in different ways. It also defines converters to make the new type fairly transparent.<ul class="simple"><li><cite>name</cite>: The name of the type to define</li>
+<li><cite>source</cite>: The type to derive from. This is done via <cite>distinct</cite></li>
+<li><cite>extractIt</cite>: The body of the <cite>extract</cite> function. There will be a variable named <cite>it</cite> defined that is the value from which a key needs to be pulled.</li>
+<li><cite>cmpAB</cite>: The body of the <cite>cmp</cite> function. There will be two variables named <cite>a</cite> and <cite>b</cite> defined. These are the arguments to the <cite>cmp</cite> proc that need to be compared.</li>
+</ul>
+
 
 </dd>
 
@@ -1349,7 +1354,7 @@ Defines a distinct type with a custom extract and methods. This makes it easy to
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small>Made with Nim. Generated: 2015-09-07 21:28:26 UTC</small>
+        <small>Made with Nim. Generated: 2015-09-09 09:53:03 UTC</small>
       </div>
     </div>
   </div>
