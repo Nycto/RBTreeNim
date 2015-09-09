@@ -13,7 +13,7 @@ TESTS ?= $(notdir $(basename $(wildcard test/*_test.nim)))
 
 # Run all targets
 .PHONY: all
-all: build/readme_* test
+all: readme test
 
 # Run all tests
 .PHONY: test
@@ -66,14 +66,34 @@ for line in lines("README.md"):
 endef
 export EXTRACT_README_CODE
 
-
-# Compiles the code in the readme to make sure it works
-build/readme_%: README.md
+# A script that pulls code out of the readme. Source above
+build/extract_readme_code: Makefile
 	@mkdir -p build
 	@echo "$$EXTRACT_README_CODE" > build/extract_readme_code.nim
 	$(call COMPILE,build/extract_readme_code.nim)
+
+# Execute the script to extract the source
+build/readme_%.nim: README.md build/extract_readme_code
 	@build/extract_readme_code
-	ls build/readme_*.nim | xargs -n1 nim c -r --path:. --verbosity:0
+	@echo
+
+# Compiles the code in the readme to make sure it works
+build/readme_%: build/readme_%.nim
+	@echo "Compiling $<"
+	$(call COMPILE,$<)
+	@echo
+	$@
+	@echo
+
+# The number of code blocks in the readme
+README_CODE_COUNT=$(shell expr $(shell cat README.md | grep '```' | wc -l) / 2 - 1)
+
+# Define a general rule that compiles all the readme code
+define DEFINE_README_RULES
+readme: $(addprefix build/readme_,$(shell seq 0 $(README_CODE_COUNT)))
+endef
+
+$(call DEFINE_README_RULES)
 
 
 # Watches for changes and reruns
