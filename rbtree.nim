@@ -31,8 +31,17 @@ template defineIndex*(
     name: typedesc, source: typedesc,
     extractIt: expr, cmpAB: expr
 ) {.immediate.} =
-    ## Defines a distinct type with a custom extract and methods. This
-    ## makes it easy to index the same data in different ways.
+    ## Defines a distinct type with custom extract and cmp methods. This
+    ## makes it easy to index the same data in different ways. It also defines
+    ## converters to make the new type fairly transparent.
+    ## * `name`: The name of the type to define
+    ## * `source`: The type to derive from. This is done via `distinct`
+    ## * `extractIt`: The body of the `extract` function. There will be a
+    ##   variable named `it` defined that is the value from which a key
+    ##   needs to be pulled.
+    ## * `cmpAB`: The body of the `cmp` function. There will be two variables
+    ##   named `a` and `b` defined. These are the arguments to the `cmp` proc
+    ##   that need to be compared.
 
     type name* {.borrow: `.`.} = distinct source
 

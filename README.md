@@ -103,6 +103,7 @@ will allow you to dispatch to different `extract` and `cmp` implementations.
 ```nimrod
 import rbtree
 
+# Define new types with custom extractors and comparators
 defineIndex(XIndex, tuple[x, y: int], it.x, cmp(a, b))
 defineIndex(YIndex, tuple[x, y: int], it.y, cmp(a, b))
 
