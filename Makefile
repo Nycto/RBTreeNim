@@ -85,15 +85,9 @@ build/readme_%: build/readme_%.nim
 	$@
 	@echo
 
-# The number of code blocks in the readme
-README_CODE_COUNT=$(shell expr $(shell cat README.md | grep '```' | wc -l) / 2 - 1)
-
 # Define a general rule that compiles all the readme code
-define DEFINE_README_RULES
-readme: $(addprefix build/readme_,$(shell seq 0 $(README_CODE_COUNT)))
-endef
-
-$(call DEFINE_README_RULES)
+readme: $(addprefix build/readme_,$(shell seq 0 \
+	$(shell expr $(shell cat README.md | grep '```' | wc -l) / 2 - 1)))
 
 
 # Watches for changes and reruns
