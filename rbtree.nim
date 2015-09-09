@@ -40,7 +40,7 @@ template defineIndex*(
 
     converter convert*( i: source ): name = name(i)
 
-    proc compare*( arg1, arg2: name ): int =
+    proc cmp*( arg1, arg2: name ): int =
         let a {.inject.} = arg1
         let b {.inject.} = arg2
         return cmpAB
@@ -104,11 +104,11 @@ template getKey( typeT, typeK: typedesc, value: expr ): expr =
         value.extract
 
 template compareKeys( a, b: expr ): int =
-    # Compares two keys
-    when not compiles(a.compare(b) is int) and compiles(a.cmp(b)):
-        a.cmp(b)
-    else:
-        a.compare(b)
+    ## Compares two keys
+    # This was originally more complex. It probably doesn't need to be its own
+    # function at this point, but I'm leaving this in place in case it needs
+    # to become more complicated
+    a.cmp(b)
 
 proc search[T, K]( tree: RedBlackTree[T, K], key: K ): Node[T] =
     ## Find a value in the tree and returns the containing node. Or nil

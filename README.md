@@ -70,7 +70,7 @@ Custom Comparators
 ------------------
 
 Values are inserted into a Red/Black Tree in sorted order. The definition of
-"sorted order", howerver, can be customized by defining a 'compare' function.
+"sorted order", howerver, can be customized by defining a `cmp` function.
 It should take two values, `(a, b)`, and returns `< 0` if `a < b`, `> 0` if
 `a > b`, and `0` if `x == y`.
 
@@ -79,12 +79,15 @@ For example, if you wanted to sort a tree of coordinates by their `y` values:
 ```nimrod
 import rbtree
 
-proc compare*( a, b: tuple[x, y: int] ): int = cmp(a.y, b.y)
+type MyPoint = object
+    x, y: int
 
-var tree = newRBTree[tuple[x, y: int], tuple[x, y: int]]()
+proc cmp*( a, b: MyPoint ): int = cmp(a.y, b.y)
 
-tree.insert( (x: 234, y: 789) )
-tree.insert( (x: 890, y: 123) )
+var tree = newRBTree[MyPoint, MyPoint]()
+
+tree.insert( MyPoint(x: 234, y: 789) )
+tree.insert( MyPoint(x: 890, y: 123) )
 
 echo tree
 ```

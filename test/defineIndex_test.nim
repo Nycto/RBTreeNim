@@ -19,7 +19,7 @@ defineIndex(ModuloInt, int, it, (a mod 5) - (b mod 5))
 type MyObj = object
     idx: int
 
-proc compare( a, b: MyObj ): int =
+proc cmp( a, b: MyObj ): int =
     cmp(a.idx, b.idx)
 
 
