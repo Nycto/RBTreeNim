@@ -143,6 +143,20 @@ suite "A Red/Black Tree should":
         require( tree.contains(16) )
         require( not tree.contains(20) )
 
+    test "Return whether an item is included based on the key or value":
+        var tree = newRBTree[tuple[x, y: int], int]()
+        require( not tree.contains(50) )
+        tree.insert( (x: 50, y: 4), (x: 30, y: 5), (x: 40, y: 90) )
+
+        require( tree.contains(50) )
+        require( tree.contains((x: 50, y: 4)) )
+        require( tree.contains(30) )
+        require( tree.contains((x: 30, y: 5)) )
+        require( tree.contains(40) )
+        require( tree.contains((x: 40, y: 90)) )
+
+        require( not tree.contains(20) )
+
     test "Return the minimum value in a true":
         var tree = newRBTree[int, int]()
         require( tree.min.isNone )
