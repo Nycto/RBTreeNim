@@ -42,6 +42,53 @@ for i in reversed(tree):
     echo i
 ```
 
+Custom Keys
+-----------
+
+A Red/Black tree has a concept of a 'key' and a 'comparator'. When you call
+`fetch`, the key is what you pass in. Sometimes this is the object itself, but
+other times it's a derived value. When that is the case, you can define an
+`extract` function that returns the key.
+
+For example, if you are indexing X/Y coordinates by just the `x` value:
+
+```nimrod
+import rbtree
+
+proc extract( point: tuple[x, y: int] ): int = point.x
+
+var tree = newRBTree[tuple[x, y: int], int]()
+
+tree.insert( (x: 234, y: 789) )
+tree.insert( (x: 890, y: 123) )
+
+echo tree.contains(234)
+echo tree
+```
+
+Custom Comparators
+------------------
+
+Values are inserted into a Red/Black Tree in sorted order. The definition of
+"sorted order", howerver, can be customized by defining a 'compare' function.
+It should take two values, `(a, b)`, and returns `< 0` if `a < b`, `> 0` if
+`a > b`, and `0` if `x == y`.
+
+For example, if you wanted to sort a tree of coordinates by their `y` values:
+
+```nimrod
+import rbtree
+
+proc compare*( a, b: tuple[x, y: int] ): int = cmp(a.y, b.y)
+
+var tree = newRBTree[tuple[x, y: int], tuple[x, y: int]]()
+
+tree.insert( (x: 234, y: 789) )
+tree.insert( (x: 890, y: 123) )
+
+echo tree
+```
+
 Multiple Indexes
 ----------------
 
