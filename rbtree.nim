@@ -2,7 +2,7 @@
 ## A red/black binary search tree
 ##
 
-import strutils, optional_t, ropes
+import strutils, options, ropes
 
 type
     Color = enum ## The color of a node
@@ -506,15 +506,15 @@ proc contains*[T, K]( tree: RedBlackTree[T, K], value: T|K ): bool =
 proc find*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Searches for a value by its key
     let found = search(tree, key)
-    return if found == nil: None[T]() else: Some[T](found.value)
+    return if found == nil: none(T) else: some[T](found.value)
 
 
 template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =
     ## Defines the content of the min and max functions
     if tree.root == nil:
-        return None[T]()
+        return none(T)
     else:
-        return Some[T]( far(tree.root, direction).value )
+        return some[T]( far(tree.root, direction).value )
 
 proc min*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
@@ -557,7 +557,7 @@ template defineCeilFloor[T, K](
             return branch
 
     let node = walk(tree.root)
-    return if node == nil: None[T]() else: Some[T](node.value)
+    return if node == nil: none(T) else: some[T](node.value)
 
 proc ceil*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than

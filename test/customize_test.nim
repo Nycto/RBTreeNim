@@ -1,4 +1,4 @@
-import unittest, rbtree, sequtils, optional_t
+import unittest, rbtree, sequtils
 
 abortOnError = true
 

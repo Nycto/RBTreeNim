@@ -1,4 +1,4 @@
-import unittest, rbtree, sequtils, strutils, optional_t
+import unittest, rbtree, sequtils, strutils, options
 
 abortOnError = true
 
@@ -268,38 +268,38 @@ suite "A Red/Black Tree should":
     test "Calculate the ceil within a tree":
         var tree = newRBTree[tuple[i: int], int]()
 
-        require( ceil(tree, 25) == None[tuple[i: int]]() )
+        require( ceil(tree, 25) == none(tuple[i: int]) )
 
         tree.insert(
             (i: 10), (i: 20), (i: 30), (i: 40), (i: 50),
             (i: 60), (i: 70), (i: 80), (i: 55), (i: 57))
 
-        require( ceil(tree, 40) == Some[tuple[i: int]]((i: 40)) )
-        require( ceil(tree, 50) == Some[tuple[i: int]]((i: 50)) )
-        require( ceil(tree, 65) == Some[tuple[i: int]]((i: 70)) )
-        require( ceil(tree, 0)  == Some[tuple[i: int]]((i: 10)) )
-        require( ceil(tree, 54) == Some[tuple[i: int]]((i: 55)) )
-        require( ceil(tree, 56) == Some[tuple[i: int]]((i: 57)) )
-        require( ceil(tree, 59) == Some[tuple[i: int]]((i: 60)) )
-        require( ceil(tree, 90) == None[tuple[i: int]]() )
+        require( ceil(tree, 40) == some[tuple[i: int]]((i: 40)) )
+        require( ceil(tree, 50) == some[tuple[i: int]]((i: 50)) )
+        require( ceil(tree, 65) == some[tuple[i: int]]((i: 70)) )
+        require( ceil(tree, 0)  == some[tuple[i: int]]((i: 10)) )
+        require( ceil(tree, 54) == some[tuple[i: int]]((i: 55)) )
+        require( ceil(tree, 56) == some[tuple[i: int]]((i: 57)) )
+        require( ceil(tree, 59) == some[tuple[i: int]]((i: 60)) )
+        require( ceil(tree, 90) == none(tuple[i: int]) )
 
     test "Calculate the floor within a tree":
         var tree = newRBTree[tuple[i: int], int]()
 
-        require( floor(tree, 25) == None[tuple[i: int]]() )
+        require( floor(tree, 25) == none(tuple[i: int]) )
 
         tree.insert(
             (i: 10), (i: 20), (i: 30), (i: 40), (i: 50),
             (i: 60), (i: 70), (i: 80), (i: 55), (i: 57))
 
-        require( floor(tree, 40) == Some[tuple[i: int]]((i: 40)) )
-        require( floor(tree, 50) == Some[tuple[i: int]]((i: 50)) )
-        require( floor(tree, 75) == Some[tuple[i: int]]((i: 70)) )
-        require( floor(tree, 90) == Some[tuple[i: int]]((i: 80)) )
-        require( floor(tree, 56) == Some[tuple[i: int]]((i: 55)) )
-        require( floor(tree, 58) == Some[tuple[i: int]]((i: 57)) )
-        require( floor(tree, 61) == Some[tuple[i: int]]((i: 60)) )
-        require( floor(tree, 5) == None[tuple[i: int]]() )
+        require( floor(tree, 40) == some[tuple[i: int]]((i: 40)) )
+        require( floor(tree, 50) == some[tuple[i: int]]((i: 50)) )
+        require( floor(tree, 75) == some[tuple[i: int]]((i: 70)) )
+        require( floor(tree, 90) == some[tuple[i: int]]((i: 80)) )
+        require( floor(tree, 56) == some[tuple[i: int]]((i: 55)) )
+        require( floor(tree, 58) == some[tuple[i: int]]((i: 57)) )
+        require( floor(tree, 61) == some[tuple[i: int]]((i: 60)) )
+        require( floor(tree, 5) == none(tuple[i: int]) )
 
     test "Return whether a tree is empty":
         var tree = newRBTree[int, int]()
@@ -320,11 +320,11 @@ suite "A Red/Black Tree should":
 
         tree.insert( (x: 50, y: 4), (x: 30, y: 5), (x: 40, y: 90) )
 
-        require( tree.find(50) == Some((x: 50, y: 4)) )
-        require( tree.find(30) == Some((x: 30, y: 5)) )
-        require( tree.find(40) == Some((x: 40, y: 90)) )
-        require( tree.find(0) == None[tuple[x, y: int]]() )
-        require( tree.find(90) == None[tuple[x, y: int]]() )
+        require( tree.find(50) == some((x: 50, y: 4)) )
+        require( tree.find(30) == some((x: 30, y: 5)) )
+        require( tree.find(40) == some((x: 40, y: 90)) )
+        require( tree.find(0) == none(tuple[x, y: int]) )
+        require( tree.find(90) == none(tuple[x, y: int]) )
 
     test "Maintain red/black rules through a large number of ops":
         runGauntlet("./test/10000_operations.txt")
