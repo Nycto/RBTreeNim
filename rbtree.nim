@@ -8,6 +8,10 @@ type
     Color = enum ## The color of a node
         red, black
 
+    TreeElem* = concept e
+        ## An individual element stored in a RedBlackTree
+        cmp(e, e) is int
+
     Node[T] = ref object ## A node within a red/black tree
 
         # The (potential) connections in this node
@@ -71,7 +75,7 @@ template defineIndex*(
             insert[name, K](self, val)
 
 
-proc newRBTree*[T, K](): RedBlackTree[T, K] =
+proc newRBTree*[T: TreeElem, K](): RedBlackTree[T, K] =
     ## Creates a new Red/Black tree
     RedBlackTree[T, K]( root: nil )
 
@@ -97,7 +101,7 @@ proc `$`[T]( node: Node[T] ): string =
     `$`(accum, node)
     return $accum
 
-proc `$`* [T, K]( self: RedBlackTree[T, K] ): string =
+proc `$`* [T: TreeElem, K]( self: RedBlackTree[T, K] ): string =
     ## Returns a tree as a string
     var accum = rope("RedBlackTree")
     accum.add(`$`(self.root))
@@ -112,7 +116,7 @@ template getKey( typeT, typeK: typedesc, value: expr ): expr =
     else:
         value.extract
 
-template compareKeys( a, b: expr ): int =
+template compareKeys( a, b: TreeElem ): int =
     ## Compares two keys
     # This was originally more complex. It probably doesn't need to be its own
     # function at this point, but I'm leaving this in place in case it needs
@@ -329,7 +333,7 @@ proc insertCase1[T, K]( tree: var RedBlackTree[T, K], node: var Node[T] ) =
         insertCase2(tree, node)
 
 
-proc insert*[T, K]( self: var RedBlackTree[T, K], value: T ) =
+proc insert*[T: TreeElem, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Adds a value to this tree
     if self.root == nil:
         self.root = newNode(value)
@@ -338,7 +342,7 @@ proc insert*[T, K]( self: var RedBlackTree[T, K], value: T ) =
         var inserted = insert(self, self.root, value)
         insertCase1(self, inserted)
 
-proc insert*[T, K](
+proc insert*[T: TreeElem, K](
     self: var RedBlackTree[T, K], one: T, two: T, more: varargs[T]
 ) =
     ## Adds multiple values to this tree
@@ -442,7 +446,7 @@ proc findDeleteTarget[T]( node: Node[T] ): Node[T] {.inline.} =
     else:
         return node.left.far(right)
 
-proc delete*[T, K]( self: var RedBlackTree[T, K], value: T ) =
+proc delete*[T: TreeElem, K]( self: var RedBlackTree[T, K], value: T ) =
     ## Deletes a value from the tree
 
     # Find the value we are being asked to delete
@@ -486,16 +490,16 @@ template defineIter[T, K]( tree: RedBlackTree[T, K], low: expr, high: expr ) =
                 current = current.parent
             current = current.parent
 
-iterator items*[T, K]( tree: RedBlackTree[T, K] ): T =
+iterator items*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree
     defineIter(tree, left, right)
 
-iterator reversed*[T, K]( tree: RedBlackTree[T, K] ): T =
+iterator reversed*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): T =
     ## Iterates over each value in a tree in reverse order
     defineIter(tree, right, left)
 
 
-proc contains*[T, K]( tree: RedBlackTree[T, K], value: T|K ): bool =
+proc contains*[T: TreeElem, K]( tree: RedBlackTree[T, K], value: T|K ): bool =
     ## Returns whether this tree contains the specific value or key
     when value is K:
         return search(tree, value) != nil
@@ -503,7 +507,7 @@ proc contains*[T, K]( tree: RedBlackTree[T, K], value: T|K ): bool =
         let found = search(tree, getKey(T, K, value))
         return found != nil and found.value == value
 
-proc find*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc find*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Searches for a value by its key
     let found = search(tree, key)
     return if found == nil: none(T) else: some[T](found.value)
@@ -516,11 +520,11 @@ template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =
     else:
         return some[T]( far(tree.root, direction).value )
 
-proc min*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
+proc min*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(left)
 
-proc max*[T, K]( tree: RedBlackTree[T, K] ): Option[T] =
+proc max*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
     tree.defineMinMax(right)
 
@@ -559,20 +563,20 @@ template defineCeilFloor[T, K](
     let node = walk(tree.root)
     return if node == nil: none(T) else: some[T](node.value)
 
-proc ceil*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc ceil*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than
     ## the given value
     proc lessThan(a, b: int): bool {.inline.} = a < b
     defineCeilFloor(tree, key, lessThan, right, left)
 
-proc floor*[T, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
+proc floor*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just less than
     ## the given value
     proc greaterThan(a, b: int): bool {.inline.} = a > b
     defineCeilFloor(tree, key, greaterThan, left, right)
 
 
-proc isEmpty*[T, K]( tree: RedBlackTree[T, K] ): bool =
+proc isEmpty*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): bool =
     ## Returns whether this tree is empty of any nodes
     return tree.root == nil
 
@@ -625,7 +629,7 @@ proc validate[T]( node: Node[T] ): int =
     # return the total number of black nodes
     return leftHeight + (if node.isRed: 0 else: 1)
 
-proc validate*[T, K]( tree: RedBlackTree[T, K] ) =
+proc validate*[T: TreeElem, K]( tree: RedBlackTree[T, K] ) =
     ## Raises an assertion exception if a red/black tree is corrupt. This is
     ## primarily for testing purposes and isn't something you should need to
     ## call from an application.
