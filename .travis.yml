@@ -10,3 +10,4 @@ install:
     - export PATH=`pwd`/nimble/src:$PATH
     - nimble install --accept
 script: make
+sudo: false
