@@ -112,7 +112,7 @@ template getKey( typeT, typeK: typedesc, value: expr ): expr =
     ## Extracts the key from the given value. This is smart enough to not call
     ## `extract` a value is both the key and value
     when typeK is typeT and not compiles(value.extract):
-        typeK(value)
+        value
     else:
         value.extract
 

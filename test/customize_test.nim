@@ -28,12 +28,12 @@ suite "A Red/Black Tree with a custom index":
     test "Custom index via defineIndex":
         var tree = newRBTree[ModuloInt, ModuloInt]()
         tree.insert(4, 10, 7, 16, 13, 8)
-        let asSeq: seq[int] = toSeq(items(tree)).mapIt(int, int(it))
+        let asSeq: seq[int] = toSeq(items(tree)).mapIt(int(it))
         require(asSeq == @[ 10, 16, 7, 13, 8, 4 ])
 
     test "Allow a `compare` without an extract":
         var tree = newRBTree[MyObj, MyObj]()
         tree.insert( MyObj(idx: 50), MyObj(idx: 30), MyObj(idx: 40) )
-        let asSeq: seq[int] = toSeq(items(tree)).mapIt(int, it.idx)
+        let asSeq: seq[int] = toSeq(items(tree)).mapIt(it.idx)
         require(asSeq == @[ 30, 40, 50 ])
 
