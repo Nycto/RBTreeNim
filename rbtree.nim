@@ -513,72 +513,65 @@ proc find*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     return if found == nil: none(T) else: some[T](found.value)
 
 
-template defineMinMax[T, K]( tree: RedBlackTree[T, K], direction: expr ) =
-    ## Defines the content of the min and max functions
-    if tree.root == nil:
-        return none(T)
-    else:
-        return some[T]( far(tree.root, direction).value )
+proc isEmpty*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): bool =
+    ## Returns whether this tree is empty of any nodes
+    return tree.root == nil
+
 
 proc min*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
-    tree.defineMinMax(left)
+    return if isEmpty(tree): none(T) else: some[T](far(tree.root, left).value)
 
 proc max*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): Option[T] =
     ## Returns the minimum value in a tree
-    tree.defineMinMax(right)
+    return if isEmpty(tree): none(T) else: some[T](far(tree.root, right).value)
 
 
+proc walk[T, K] (
+    node: Node[T], key: K,
+    isCeil: bool, compare: proc (a, b: int): bool
+): Node[T] =
+    ## Traverses the given node for the search value. This will return nil
+    ## if there isn't a value in this tree that matches the appropriate
+    ## constraints.
 
-template defineCeilFloor[T, K](
-    tree: RedBlackTree[T, K], key: K,
-    compare: expr, overUnderBranch: expr, inRangeBranch: expr
-) =
-    ## Constructs the body of the `ceil` and `floor` functions
+    if node == nil:
+        return nil
 
-    proc walk(node: Node[T]): Node[T] =
-        ## Traverses the given node for the search value. This will return nil
-        ## if there isn't a value in this tree that matches the appropriate
-        ## constraints.
+    let compared = compareKeys(getKey(T, K, node.value), key)
 
-        if node == nil:
-            return nil
+    if compared == 0:
+        return node
+    elif compare(compared, 0):
+        return walk[T, K](
+            if isCeil: node.right else: node.left,
+            key, isCeil, compare)
 
-        let compared = compareKeys(getKey(T, K, node.value), key)
+    let branch = walk[T, K](
+        if isCeil: node.left else: node.right,
+        key, isCeil, compare)
 
-        if compared == 0:
-            return node
-        elif `compare`(compared, 0):
-            return walk(node.`overUnderBranch`)
+    if branch == nil:
+        return node
+    elif compare(compareKeys(getKey(T, K, branch.value), key), 0):
+        return node
+    else:
+        return branch
 
-        let branch = walk(node.`inRangeBranch`)
-
-        if branch == nil:
-            return node
-        elif `compare`(compareKeys(getKey(T, K, branch.value), key), 0):
-            return node
-        else:
-            return branch
-
-    let node = walk(tree.root)
-    return if node == nil: none(T) else: some[T](node.value)
 
 proc ceil*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just greater than
     ## the given value
-    proc lessThan(a, b: int): bool {.inline.} = a < b
-    defineCeilFloor(tree, key, lessThan, right, left)
+    let node = walk[T, K](tree.root, key, true) do (a, b: int) -> bool:
+        a < b
+    return if node == nil: none(T) else: some[T](node.value)
 
 proc floor*[T: TreeElem, K]( tree: RedBlackTree[T, K], key: K ): Option[T] =
     ## Returns the value in this tree that is equal to or just less than
     ## the given value
-    proc greaterThan(a, b: int): bool {.inline.} = a > b
-    defineCeilFloor(tree, key, greaterThan, left, right)
-
-
-proc isEmpty*[T: TreeElem, K]( tree: RedBlackTree[T, K] ): bool =
-    ## Returns whether this tree is empty of any nodes
-    return tree.root == nil
+    let node = walk[T, K](tree.root, key, false) do (a, b: int) -> bool:
+        a > b
+    return if node == nil: none(T) else: some[T](node.value)
 
 
 proc validate[T]( node: Node[T] ): int =
