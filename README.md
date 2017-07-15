@@ -126,8 +126,3 @@ License
 This library is released under the MIT License, which is pretty spiffy. You
 should have received a copy of the MIT License along with this program. If
 not, see http://www.opensource.org/licenses/mit-license.php
-
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Nycto/rbtreenim/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
