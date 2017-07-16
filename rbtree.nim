@@ -31,7 +31,7 @@ type
         root: Node[T]
 
 
-template defineIndex*(name: typedesc, source: typedesc, extractIt: untyped, cmpAB: untyped) {.immediate.} =
+template defineIndex*(name, source, extractIt, cmpAB: untyped) =
     ## Defines a distinct type with custom extract and cmp methods. This
     ## makes it easy to index the same data in different ways. It also defines
     ## converters to make the new type fairly transparent.
