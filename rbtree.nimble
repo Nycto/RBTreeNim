@@ -11,4 +11,5 @@ skipDirs      = @["test", ".build"]
 requires "nim >= 0.11.2"
 
 exec "test -d .build/ExtraNimble || git clone https://github.com/Nycto/ExtraNimble.git .build/ExtraNimble"
-include ".build/ExtraNimble/extranimble.nim"
+when existsDir(thisDir() & "/.build"):
+    include ".build/ExtraNimble/extranimble.nim"
