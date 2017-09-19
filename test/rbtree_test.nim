@@ -158,6 +158,9 @@ suite "A Red/Black Tree should":
         require( not tree.contains((x: 40, y: 30)) )
         require( not tree.contains(20) )
 
+        tree.delete((x: 50, y: 4))
+        require( not tree.contains(50) )
+
     test "Return the minimum value in a true":
         var tree = newRBTree[int, int]()
         require( tree.min.isNone )
