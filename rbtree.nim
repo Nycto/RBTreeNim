@@ -447,7 +447,7 @@ proc delete*[T: TreeElem, K](self: var RedBlackTree[T, K], value: T) =
     ## Deletes a value from the tree
 
     # Find the value we are being asked to delete
-    var toDelete = search(self, value)
+    var toDelete = search(self, getKey(T, K, value))
     if toDelete == nil:
         return
 
