@@ -32,7 +32,7 @@ proc runGauntlet( file: string ) =
         lineNumber = lineNumber + 1
 
         let command = line[0..2]
-        proc content: string = line[4..(line.len)]
+        proc content: string = line[4..<line.len]
 
         try:
             case command
@@ -41,7 +41,7 @@ proc runGauntlet( file: string ) =
                 let valid = compareTails(line, 4, $tree)
                 if not valid:
                     checkpoint("Expected: RedBlackTree" & content())
-                    checkpoint("Tree is:  " & $tree)
+                    #checkpoint("Tree is:  " & $tree)
                     assert(false)
             of "INS":
                 tree.insert( parseInt(content()) )
@@ -280,7 +280,7 @@ suite "A Red/Black Tree should":
         require( ceil(tree, 40) == some[tuple[i: int]]((i: 40)) )
         require( ceil(tree, 50) == some[tuple[i: int]]((i: 50)) )
         require( ceil(tree, 65) == some[tuple[i: int]]((i: 70)) )
-        require( ceil(tree, 0)  == some[tuple[i: int]]((i: 10)) )
+        require( ceil(tree, 0) == some[tuple[i: int]]((i: 10)) )
         require( ceil(tree, 54) == some[tuple[i: int]]((i: 55)) )
         require( ceil(tree, 56) == some[tuple[i: int]]((i: 57)) )
         require( ceil(tree, 59) == some[tuple[i: int]]((i: 60)) )
@@ -330,5 +330,5 @@ suite "A Red/Black Tree should":
         require( tree.find(90) == none(tuple[x, y: int]) )
 
     test "Maintain red/black rules through a large number of ops":
-        runGauntlet("./test/10000_operations.txt")
+        runGauntlet("./tests/10000_operations.txt")
 
