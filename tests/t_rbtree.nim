@@ -41,7 +41,7 @@ proc runGauntlet( file: string ) =
                 let valid = compareTails(line, 4, $tree)
                 if not valid:
                     checkpoint("Expected: RedBlackTree" & content())
-                    #checkpoint("Tree is:  " & $tree)
+                    checkpoint("Tree is:  " & $tree)
                     assert(false)
             of "INS":
                 tree.insert( parseInt(content()) )
