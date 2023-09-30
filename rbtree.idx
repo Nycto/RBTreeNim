@@ -1,0 +1,18 @@
+TreeElem	rbtree.html#TreeElem	rbtree: TreeElem	
+RedBlackTree	rbtree.html#RedBlackTree	rbtree: RedBlackTree	
+defineIndex	rbtree.html#defineIndex.t,untyped,untyped,untyped,untyped	rbtree: defineIndex(name, source, extractIt, cmpAB: untyped)	
+newRBTree	rbtree.html#newRBTree	rbtree: newRBTree[T: TreeElem; K](): RedBlackTree[T, K]	
+`$`	rbtree.html#$,RedBlackTree[T: TreeElem,K]	rbtree: `$`[T: TreeElem; K](self: RedBlackTree[T, K]): string	
+insert	rbtree.html#insert,RedBlackTree[T: TreeElem,K],T	rbtree: insert[T: TreeElem; K](self: var RedBlackTree[T, K]; value: T)	
+insert	rbtree.html#insert,RedBlackTree[T: TreeElem,K],T,T,varargs[T]	rbtree: insert[T: TreeElem; K](self: var RedBlackTree[T, K]; one: T; two: T;\n                       more: varargs[T])	
+delete	rbtree.html#delete,RedBlackTree[T: TreeElem,K],T	rbtree: delete[T: TreeElem; K](self: var RedBlackTree[T, K]; value: T)	
+items	rbtree.html#items.i,RedBlackTree[T: TreeElem,K]	rbtree: items[T: TreeElem; K](tree: RedBlackTree[T, K]): T	
+reversed	rbtree.html#reversed.i,RedBlackTree[T: TreeElem,K]	rbtree: reversed[T: TreeElem; K](tree: RedBlackTree[T, K]): T	
+contains	rbtree.html#contains,RedBlackTree[T: TreeElem,K],	rbtree: contains[T: TreeElem; K](tree: RedBlackTree[T, K]; value: T | K): bool	
+find	rbtree.html#find,RedBlackTree[T: TreeElem,K],K	rbtree: find[T: TreeElem; K](tree: RedBlackTree[T, K]; key: K): Option[T]	
+isEmpty	rbtree.html#isEmpty,RedBlackTree[T: TreeElem,K]	rbtree: isEmpty[T: TreeElem; K](tree: RedBlackTree[T, K]): bool	
+min	rbtree.html#min,RedBlackTree[T: TreeElem,K]	rbtree: min[T: TreeElem; K](tree: RedBlackTree[T, K]): Option[T]	
+max	rbtree.html#max,RedBlackTree[T: TreeElem,K]	rbtree: max[T: TreeElem; K](tree: RedBlackTree[T, K]): Option[T]	
+ceil	rbtree.html#ceil,RedBlackTree[T: TreeElem,K],K	rbtree: ceil[T: TreeElem; K](tree: RedBlackTree[T, K]; key: K): Option[T]	
+floor	rbtree.html#floor,RedBlackTree[T: TreeElem,K],K	rbtree: floor[T: TreeElem; K](tree: RedBlackTree[T, K]; key: K): Option[T]	
+validate	rbtree.html#validate,RedBlackTree[T: TreeElem,K]	rbtree: validate[T: TreeElem; K](tree: RedBlackTree[T, K])	
