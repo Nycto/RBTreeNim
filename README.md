@@ -1,5 +1,8 @@
-RBTreeNim [![Build Status](https://travis-ci.org/Nycto/RBTreeNim.svg?branch=master)](https://travis-ci.org/Nycto/RBTreeNim)
+RBTreeNim
 =========
+
+[![Build](https://github.com/Nycto/RBTreeNim/actions/workflows/build.yml/badge.svg)](https://github.com/Nycto/RBTreeNim/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Nycto/RBTreeNim/blob/master/LICENSE.md)
 
 A Red/Black Tree implementation in Nim
 
